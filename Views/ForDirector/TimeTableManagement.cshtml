@@ -1,0 +1,801 @@
+﻿
+@{
+    ViewBag.Title = "TimeTableManagement";
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery3")
+@Scripts.Render("~/bundles/jqueryUi")
+@Styles.Render("~/bundles/jqueryUiCss")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        ttForAccordingTeachers();
+        $(".switchBox div img").first().click(function () {
+            $(".switchBox").find("input").prop('checked', false);
+            ttForAccordingTeachers();
+        });
+        $(".switchBox div img").last().click(function () {
+            $(".switchBox").find("input").prop('checked', true);
+            ttAccordingClasses();
+        });
+        $(".switchBox").find("input").change(function () {
+            if (this.checked) {
+                ttAccordingClasses();
+            }
+            if (!this.checked) {
+                ttForAccordingTeachers();
+            }
+        });
+    });
+
+
+    function ttForAccordingTeachers() {
+        $(".ttAccordingClassFilter").children().stop().fadeOut('slow');
+        $(".ttAccordingTeacherFilter").children().stop().fadeIn('slow');
+        $(".timeTableContainer").removeClass('group').addClass('teacher');
+        var subjectList = $(".ttAccordingTeacherFilter div select[name=subjects]");
+        var teacherList = $(".ttAccordingTeacherFilter div select[name=teachers]");
+        var subjectId = subjectList.val();
+        var teacherId = teacherList.val();
+        subjectList.empty();
+        $.ajax({
+            url: '@Url.Action("getSubjects", "ForDirector")',
+            method: 'post',
+            dataType: 'json',
+            success: function (data) {
+                subjectList.append($('<option/>', { value: -1, text: 'Все Учителя' }));
+                $(data).each(function (index, item) {
+                    subjectList.append($('<option/>', { value: item.Id, text: item.SubjectName + " " + item.Level }));
+                });
+
+            },
+            error: function (data) {
+
+            }
+        });
+        $.ajax({
+            url: '@Url.Action("getTeachers", "ForDirector")',
+            method: 'post',
+            data: JSON.stringify({
+                "subjectId": subjectId
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                teacherList.empty();
+                $(data).each(function (index, item) {
+                    $(".ttAccordingTeacherFilter div select[name=teachers]").append($('<option/>', { value: item.Id, text: item.LastName + " " + item.FirstName }));
+                });
+                teacherId = teacherList.val();
+                teacherTimeTableCreation(teacherId);
+                getTeacherTimeTable(teacherId);
+
+            },
+            error: function (data) {
+
+            }
+        });
+
+        subjectList.change(function () {
+
+            subjectId = subjectList.val();
+            $.ajax({
+                url: '@Url.Action("getTeachers", "ForDirector")',
+                method: 'post',
+                data: JSON.stringify({
+                    "subjectId": subjectId
+                }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    teacherList.empty();
+                    $(data).each(function (index, item) {
+                        $(".ttAccordingTeacherFilter div select[name=teachers]").append($('<option/>', { value: item.Id, text: item.LastName + " " + item.FirstName }));
+                    });
+                    teacherId = teacherList.val();
+                    teacherTimeTableCreation(teacherId);
+                    getTeacherTimeTable(teacherId);
+                },
+                error: function (data) {
+
+                }
+            });
+
+        });
+        teacherList.change(function () {
+            teacherId = teacherList.val();
+            teacherTimeTableCreation(teacherId);
+            getTeacherTimeTable(teacherId);
+        });
+
+    };
+
+    function ttAccordingClasses() {
+        $(".ttAccordingTeacherFilter").children().stop().fadeOut('slow');
+        $(".ttAccordingClassFilter").children().stop().fadeIn('slow');
+        $(".timeTableContainer").removeClass('teacher').addClass('group');
+    };
+
+
+    function getTeacherTimeTable(x) {
+        $(".ttDayTable.mon table tr").each(function (index, item) {            
+            var table = $(".ttDayTable.mon");
+            var z = $(this).children().first().html();
+            if (z != "№") {
+                var row = $(this).children();
+                getTeacherTimeTableAjax(x, 1, z, row, table);                
+            };
+        });
+        $(".ttDayTable.tue table tr").each(function (index, item) {
+
+            var z = $(this).children().first().html();
+
+
+            if (z != "№") {
+                var row = $(this).children();
+                getTeacherTimeTableAjax(x, 2, z, row);
+            };
+
+        });
+
+        $(".ttDayTable.wed table tr").each(function (index, item) {
+
+            var z = $(this).children().first().html();
+
+
+            if (z != "№") {
+                var row = $(this).children();
+                getTeacherTimeTableAjax(x, 3, z, row);
+                
+            };
+
+        });
+
+        $(".ttDayTable.thu table tr").each(function (index, item) {
+
+            var z = $(this).children().first().html();
+
+
+            if (z != "№") {
+                var row = $(this).children();
+                getTeacherTimeTableAjax(x, 4, z, row);
+
+            };
+
+        });
+
+        $(".ttDayTable.fri table tr").each(function (index, item) {
+
+            var z = $(this).children().first().html();
+
+
+            if (z != "№") {
+                var row = $(this).children();
+                getTeacherTimeTableAjax(x, 5, z, row);
+
+            };
+
+        });
+
+        $(".ttDayTable.sat table tr").each(function (index, item) {
+
+            var z = $(this).children().first().html();
+
+
+            if (z != "№") {
+                var row = $(this).children();
+                getTeacherTimeTableAjax(x, 6, z, row);
+
+            };
+
+        });
+
+    };
+
+
+    function editTeacherTimeTable(x, row, table) {
+        row.first().next().click(function () {
+            if ($(this).children("select").length == 0) {
+                $(this).empty();
+                $(this).append("<select name='teacherSubjects'></select>");
+                table.children(".ttDayTableEnd").empty();
+                table.children(".ttDayTableEnd").append("<div class='save'>Сохранить</div><div class='cancel'>Отменить</div>");
+                var teacherList = $(".ttAccordingTeacherFilter div select[name=teachers]");
+                var teacherId = teacherList.val();
+                var subjects = $(this).children("select[name=teacherSubjects]");
+                var d = $(this).next().children("select[name=teacherClasses]").find("option:selected").text();
+                var l = d.substring(0, 1);
+                
+                if (l.match(/^\d+$/)) {
+                    $.ajax({
+                        url: '@Url.Action("getSubjectsByTeacher", "ForDirector")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "id": teacherId,
+                            "level": l
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            subjects.empty();
+                            $(data).each(function (index, item) {
+                                subjects.append($('<option/>', { value: item.Id, text: item.SubjectName + " " + item.Level }));
+                            });                            
+                            editTeacherTimeTable(x, row, table);
+                            subjects.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                            classes.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                        },
+                        error: function (data) {
+                            alert("xxx");
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: '@Url.Action("getSubjectsByTeacher", "ForDirector")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "id": teacherId,
+                            "level": 0
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            subjects.empty();
+                            $(data).each(function (index, item) {
+                                subjects.append($('<option/>', { value: item.Id, text: item.SubjectName + " " + item.Level }));
+                            });                            
+                            editTeacherTimeTable(x, row, table);
+                            subjects.change(function () {                                
+                                editTeacherTimeTable(x, row, table);
+                            });
+                            classes.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                            
+                        },
+                        error: function (data) {
+                            alert("xxx");
+                        }
+                    });
+                };
+
+                $(".cancel").click(function () {
+                    getTeacherTimeTable(x);
+                });
+                $(".save").click(function () {
+                    var rowMon = $(".ttDayTable.mon table tr");
+                    saveTheTable(x, rowMon);
+                });
+            };
+
+        });
+
+        row.last().click(function (event) {
+            if ($(this).children("select").length == 0) {
+                $(this).empty();
+                $(this).append("<select name='teacherClasses'></select>");
+                table.children(".ttDayTableEnd").empty();
+                table.children(".ttDayTableEnd").append("<div class='save'>Сохранить</div><div class='cancel'>Отменить</div>");
+                var teacherList = $(".ttAccordingTeacherFilter div select[name=teachers]");
+                var teacherId = teacherList.val();
+                var classes = $(this).children("select[name=teacherClasses]");
+                var d = $(this).prev().children("select[name=teacherSubjects]").find("option:selected").text().split(" ");
+                var l = d[1];
+                if (l == null) {
+                    $.ajax({
+                        url: '@Url.Action("getClasses", "ForDirector")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "id": teacherId,
+                            "level": 0
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            classes.empty();
+                            $(data).each(function (index, item) {
+                                classes.append($('<option/>', { value: item.Id, text: item.Level + item.Name }));
+                            });
+                            editTeacherTimeTable(x, row, table);
+                            subjects.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                            classes.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                        },
+                        error: function (data) {
+                            alert("xxx");
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: '@Url.Action("getClasses", "ForDirector")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "id": x,
+                            "level": l
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            classes.empty();
+                            $(data).each(function (index, item) {
+                                classes.append($('<option/>', { value: item.Level, text: item.Level + item.Name }));
+                                $("classLevel")
+                            });
+                            editTeacherTimeTable(x, row, table);
+                            subjects.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                            classes.change(function () {
+                                editTeacherTimeTable(x, row, table);
+                            });
+                        },
+                        error: function (data) {
+                            alert("xxx");
+                        }
+                    });
+                };
+                $(".cancel").click(function () {
+                    getTeacherTimeTable(x);
+                });
+                $(".save").click(function () {
+                    var rowMon = $(".ttDayTable.mon table tr");
+                    saveTheTable(x, rowMon);
+                });
+            };
+
+        });
+        
+    };
+
+    function getTeacherTimeTableAjax(x, y, z, row, table) {
+        $.ajax({
+            url: '@Url.Action("getTeacherTimeTable", "ForDirector")',
+            method: 'post',
+            data: JSON.stringify({
+                "id": x,
+                "subjOrd": z,
+                "day": y
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                 
+                row.first().next().html(data.subject);
+                row.last().html(data.classLevel + data.classLetter);                
+                table.children(".ttDayTableEnd").empty();
+                editTeacherTimeTable(x, row, table);
+            },
+            error: function (data) {
+                
+                row.first().next().html("--");
+                row.last().html("--");                
+                table.children(".ttDayTableEnd").empty();
+                editTeacherTimeTable(x, row, table);
+            }
+        });
+    };
+
+    function teacherTimeTableCreation(x) {
+        $.ajax({
+            url: '@Url.Action("teacherTimeTableCreation", "ForDirector")',
+            method: 'post',
+            data: JSON.stringify({
+                "x": x
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+
+            },
+            error: function (data) {
+
+            }
+        })
+    };
+
+    function saveTheTable(x, row) {
+        var teacherList = $(".ttAccordingTeacherFilter div select[name=teachers]");
+        var teacherId = teacherList.val();
+            row.each(function (index, item) {               
+                var z = $(this).children().first().html();
+                var subject = $(this).children().first().next().children("select[name=teacherSubjects]");
+                var classes = $(this).children().last().children("select[name=teacherClasses]");
+                var subjectId = $(this).children().first().next().children("select[name=teacherSubjects]").val();
+                var classId = $(this).children().last().children("select[name=teacherClasses]").val();
+                var teacherList = $(".ttAccordingTeacherFilter div select[name=teachers]");
+                var teacherId = teacherList.val();
+                if (z != "№") {
+                    alert(teacherId);
+                    if (subject.length > 0 && classes.length > 0) {
+                        alert("ok");
+                        if (subject.length == 0) {
+                            alert(classId);
+                            $.ajax({
+                                url: '@Url.Action("editTeacherTimeTable", "ForDirector")',
+                                method: 'post',
+                                data: JSON.stringify({
+                                    "id": teacherId,
+                                    "subjOrd": z,
+                                    "subject": 0,
+                                    "classId": classId
+                                }),
+                                dataType: 'json',
+                                contentType: "application/json; charset=utf-8",
+                                success: function (data) {
+                                    $(this).children().last().append("success");
+                                },
+                                error: function (data) {
+                                    $(this).children().last().append("error");
+                                }
+                            });
+                        }
+                        else if (classes.length == 0) {
+                            $.ajax({
+                                url: '@Url.Action("editTeacherTimeTable", "ForDirector")',
+                                method: 'post',
+                                data: JSON.stringify({
+                                    "id": teacherId,
+                                    "subjOrd": z,
+                                    "subject": subjectId,
+                                    "classId": 0
+                                }),
+                                dataType: 'json',
+                                contentType: "application/json; charset=utf-8",
+                                success: function (data) {
+                                    $(this).children().first().next().append("success");
+                                },
+                                error: function (data) {
+                                    $(this).children().first().next().append("error");
+                                }
+                            });
+                        }
+                        else {
+                            alert(classId);
+                            $.ajax({
+                                url: '@Url.Action("editTeacherTimeTable", "ForDirector")',
+                                method: 'post',
+                                data: JSON.stringify({
+                                    "id": teacherId,
+                                    "subjOrd": z,
+                                    "subject": subjectId,
+                                    "classId": classId
+                                }),
+                                dataType: 'json',
+                                contentType: "application/json; charset=utf-8",
+                                success: function (data) {
+                                    $(this).children().first().next().append("success");
+                                },
+                                error: function (data) {
+                                    $(this).children().first().next().append("error");
+                                }
+                            });
+                        };
+                    };
+                };
+            });
+            getTeacherTimeTable(teacherId);      
+    };
+    
+
+    </script>
+<div id="topLineLogin">
+    <div class="adminSchoolName">
+        <img src="~/image/icons/lenta/lenta.png" />
+        <p>Школа №000</p>
+    </div>
+    <div class="userButtonPack">
+        @*<a href="#"><div class="userBtnDescription" id="">Управление<br /> Предметами</div><img id="sbjd" src="~/image/icons/textbooks.png" alt="Управление Предметами" /></a>
+            <a href="#"><div id="">Управление<br /> Учениками</div><img id="ppld" src="~/image/icons/pupil.png" alt="Управление Учениками" /></a>
+            <a href="#"><div id="">Управление<br /> Родителями</div><img id="prtd" src="~/image/icons/parent_icon.png" alt="Управление Родителями" /></a>
+            <a href="#"><div id="">Управление<br /> Учителями</div><img id="tcrd" src="~/image/icons/teacher.png" alt="Управление учителями школы" /></a>
+            <a href="#"><div id="">Управление<br /> Менеджером</div><img id="mnrd" src="~/image/icons/Manager-512.png" alt="Управление менеджером школы" /></a>*@
+        <a href="#"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="tmtbl" src="~/image/icons/timeTableEdit.png" alt="Управление Группами" /></a>
+        <a href="@Url.Action("Index")"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="grpd" src="~/image/icons/group.png" alt="Управление Группами" /></a>
+
+    </div>
+</div>
+<div class="classFilterBox">
+    <div class='classFilterTitle'>Управление Расписаниеми</div>
+    <div class="ttAccordingTeacherFilter">
+       <div>
+                 
+           <select name="subjects">
+               <option value="-1">Все Учителя</option>
+           </select>            
+           <select name="teachers">
+               <option value="-1">Все Учителя</option>
+           </select>
+       </div>
+    </div>
+    <div class="switchBox">
+        <div></div>
+        <div>
+            <img src="~/image/icons/switchTeacher.png" />
+            <label class="switchTimetableBox">
+                <input type="checkbox">
+                <span class="slider round"></span>
+            </label>
+            <img src="~/image/icons/group.png" />
+        </div>
+    </div>
+    <div class="ttAccordingClassFilter">
+        <div>
+            <a href='#' class='classFilterActive'>1</a>
+            <a href='#'>2</a>
+            <a href='#'>3</a>
+            <a href='#'>4</a>
+            <a href='#'>5</a>
+            <a href='#'>6</a>
+            <a href='#'>7</a>
+            <a href='#'>8</a>
+            <a href='#'>9</a>
+            <a href='#'>10</a>
+            <a href='#'>11</a>
+        </div>
+    </div>
+</div>
+<div class='classContainer'>
+    <div class="timeTableContainer">
+        <div class="ttDayTable mon">
+            <h2>Понедельник</h2>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Урок</th>
+                    <th>Класс</th>
+                </tr>
+                <tr class="lessRow">
+                    <td class="lesNum">1</td>
+                    <td class="lesName"></td>
+                    <td class="lesClass"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <div class="ttDayTableEnd"></div>
+        </div>
+        <div class="ttDayTable tue">
+            <h2>Вторник</h2>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Урок</th>
+                    <th>Класс</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <div class="ttDayTableEnd"></div>
+        </div>
+        <div class="ttDayTable wed">
+            <h2>Среда</h2>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Урок</th>
+                    <th>Класс</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <div class="ttDayTableEnd"></div>
+        </div>
+        <div class="ttDayTable thu">
+            <h2>Четверг</h2>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Урок</th>
+                    <th>Класс</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <div class="ttDayTableEnd"></div>
+        </div>
+        <div class="ttDayTable fri">
+            <h2>Пятница</h2>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Урок</th>
+                    <th>Класс</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <div class="ttDayTableEnd"></div>
+        </div>
+        <div class="ttDayTable sat">
+            <h2>Суббота</h2>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Урок</th>
+                    <th>Класс</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <div class="ttDayTableEnd"></div>            
+        </div>
+    </div>
+</div>
+
+<input class="hidden" id="classLevel" value="" />
+<input class="hidden" id="classId" value="" />
+<input class="hidden" id="subjectLevel" value="" />
+<input class="hidden" id="subjectId" value="" />
+

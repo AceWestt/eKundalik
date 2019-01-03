@@ -1,0 +1,869 @@
+﻿
+a{
+    color: white;
+}
+
+a:hover{
+    font-style:normal;
+}
+
+#adminContent, .tableDirClass{
+    float: left;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    text-align:center;
+    margin-top: 30px;
+}
+
+.addButton{
+    color: white;
+    float: left;    
+    margin-top: 30px;
+    margin-right: 0;
+    height: 40px;
+    width: 50px;
+    text-align:center;
+    font-size: 1.2em;
+    padding-top: 6px;
+    background: #11b840;
+    -webkit-border-radius: 0 10px 0 0;
+    -moz-border-radius: 0 10px 0 0;
+    border-radius: 0 10px 0 0;
+    /*box-shadow: 3px -5px 10px 1px rgba(128, 128, 128, 0.3);*/  
+     border: 1px solid rgb(217, 217, 217);
+     border-bottom: none;
+     border-left: none;
+}
+
+.addButton.addTeacherButton{
+    border-radius: 0;
+}
+
+h1{
+    float:left;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    height: 40px;
+    font-size: 1.2em;
+    width: 100%;
+    padding-top: 8px;
+     -webkit-border-radius: 0px 5px 0 0;
+    -moz-border-radius: 0px 5px 0 0;
+    border-radius: 0px 5px 0 0;
+    /*box-shadow: 1px 0px 10px 1px rgba(0, 0, 0, 0.15);*/
+    border: 1px solid rgb(217, 217, 217);
+}
+
+#adminContent h2, .tableDirClass h2, .ttDayTable h2
+{
+    float: left;
+    -webkit-border-radius: 10px 0 0 0;
+    -moz-border-radius: 10px 0 0 0;
+    border-radius: 10px 0 0 0;
+    border: 1px solid rgb(217, 217, 217);
+    border-bottom: none;
+    border-right: none;
+    color: rgb(111, 106, 106);
+    width: 350px;
+    height: 40px;
+    font-size: 1.2em;
+    text-align: center;
+    margin-bottom: 0; 
+    margin-top: 30px;   
+    padding: 10px;
+    padding-right: 0;
+    padding-top: 8px;
+    background: rgb(250, 247, 247); 
+    /*box-shadow: 0 -5px 10px 1px rgba(128, 128, 128, 0.3);*/   
+}
+
+.tableDirClass h2, .ttDayTable h2
+{
+    margin-top: 0;
+    width: 100%;
+     -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
+}
+
+#adminContent table tr:nth-child(odd), .tableDirClass table tr:nth-child(odd), .ttDayTable table tr:nth-child(odd) {
+    background-color: #f2f2f2 ;  
+    /*border: 1px solid black;*/
+}
+
+#adminContent table, .tableDirClass table, .ttDayTable table{
+    width: 100%;
+    background: white;
+    /*box-shadow: 0 0 10px 1px rgba(128, 128, 128, 0.3);*/
+     border: 1px solid rgb(217, 217, 217);
+    -webkit-border-radius: 0 10px 0 0; 
+    -moz-border-radius: 0 10px 0 0;
+    border-radius: 0 10px 0 0;
+}
+
+#adminContent table tr, .tableDirClass table tr, .ttDayTable table tr{
+     height: 40px;
+ }
+
+ #adminContent table tr td, #adminContent table tr th, .tableDirClass table tr td, .tableDirClass table tr th, .ttDayTable table tr th, .ttDayTable table td{
+     /*width: 25%;*/
+     text-align:center;
+ }
+
+
+#appTitle{
+    font-size: 1.0em;
+    color: /*rgb(230, 0, 0)*/ #11b840;
+    margin-top: 12px;   
+    float:left;    
+}
+
+body {     
+    font-size: 1.8em;    
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    float: left;
+    width:100%;
+    margin:0;    
+    min-height: 500px;    
+}
+
+.classContainer, .classTitle, .classFilterBox, .dirContent{
+    width: 100%;
+    float:left;    
+}
+
+.classFilterBox{
+    text-align: center; 
+     height:43px;
+    background: rgb(36, 36, 36);  
+    border-bottom: solid 2px rgb(160, 160, 160);
+    border-top: solid 2px rgb(160, 160, 160);
+    border-left: solid 2px rgb(160, 160, 160);
+}
+
+.classContainer{
+    background: rgb(160, 160, 160);    
+}
+
+.classFilterLevel, .classFilterLetter{
+    width: 40%;
+    float: left;    
+}
+.classFilterLevel a, .classFilterLetter a, .ttAccordingClassFilter a{
+    color: rgb(119, 119, 119);
+    margin-left: 5px;
+    margin-right: 5px;
+    font-weight: bold;
+    font-size: 1.6em;
+}
+
+.classFilterLevel a:hover, .classFilterLetter a:hover, .ttAccordingClassFilter a:hover{
+    color: rgb(160, 160, 160);
+    text-decoration: none;
+}
+
+.classFilterLevel a.classFilterActive, .classFilterLetter a.classFilterActive, .ttAccordingClassFilter a.classFilterActive{
+    color: rgb(160, 160, 160);
+    position: relative;
+    text-decoration: none;
+}
+
+.classFilterLevel a.classFilterActive::after, .classFilterLetter a.classFilterActive::after, .ttAccordingClassFilter a.classFilterActive::after{
+     content:"";/* required */
+  position: absolute; /* takes the 'cap' out off flow */
+  top:60%; /* stick it to top edge of the sign */
+  left: 2px; /* push it way overto the right*/
+  height: 0; /* we're doing this with borders remember */
+  width:0;  
+  border-width: 8px;
+  border-style: solid;
+  border-color: rgb(160, 160, 160); /* same as bg of our rectangle */
+  /* now we make some of theborders disappear*/
+  border-left-color:transparent;
+  border-top-color:transparent;
+  border-right-color:transparent;
+}
+
+.classFilterTitle{
+    font-size: 1.4em;
+    font-weight: bold;
+    width: 20%;
+    float: left;    
+    height:40px;
+    position: relative;
+    color: rgb(36, 36, 36);
+    background: rgb(160, 160, 160);
+}
+
+.classFilterTitle:after { /*  our pseudo-element */
+  content:"";/* required */
+  position: absolute; /* takes the 'cap' out off flow */
+  top:0; /* stick it to top edge of the sign */
+  left:100%; /* push it way overto the right*/
+  height: 0; /* we're doing this with borders remember */
+  width:0;  
+  border-width: 20px;
+  border-style: solid;
+  border-color: rgb(160, 160, 160); /* same as bg of our rectangle */
+  /* now we make some of theborders disappear*/
+  border-top-color:transparent;
+  border-bottom-color:transparent;
+  border-right-color:transparent;
+  
+}
+
+.classTitle{
+    font-size: 1.6em;    
+}
+
+.classBlock{
+    float:left;
+    width: 48%;
+    margin-left: 1%;
+    margin-right: 1%;
+    background: rgb(191, 251, 235);
+    border: solid 2px rgb(217, 217, 217);
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+.detailBox{    
+    float:left;
+    width:40%;
+}
+
+.detailBox h2{
+    color: black;
+    padding:0;
+}
+
+.directorInputLabel, .directorInputField{
+    width: 100%;
+    float: left;
+    text-align: center;
+}
+
+.directorInputLabel{
+    background: rgb(224, 224, 224);
+    height: 40px;
+    box-shadow:  none;
+    margin-bottom: 0;
+    padding-top: 6px;
+    color: rgb(98, 98, 98);
+}
+
+.directorInputField{    
+    margin-top: 0;
+    box-shadow:  none;
+    height: 45px;
+    color: rgb(128, 128, 128);   
+    border: none;
+     border-bottom: solid 2px rgb(217, 217, 217);
+}
+
+.directorInputField[type=submit]{
+    -webkit-border-radius: 0 0 5px 5px;
+    -moz-border-radius:  0 0 5px 5px;
+    border-radius:  0 0 5px 5px;
+    background:  #11b840;
+    color: white;
+    border: 2px solid #11b840;
+}
+
+#endAdminTable, .ttDayTableEnd{
+    float: left;
+    width: 100%;
+    margin-bottom: 30px;
+    background: rgb(250, 247, 247);
+    height: 40px; 
+    -webkit-border-radius: 0 0 10px 10px;
+    -moz-border-radius: 0 0 10px 10px;
+    border-radius: 0 0 10px 10px;
+    /*box-shadow: 0 5px 10px 1px rgba(128, 128, 128, 0.3);*/
+    border: 1px solid rgb(217, 217, 217);
+    border-top:none;
+
+}
+
+.formFirstEdit{
+    margin-top: 30px;
+    margin-bottom: 30px;
+    float: left;
+    width: 30%;
+    margin-left: 35%;
+    margin-right: 35%;
+    border: solid 2px rgb(217, 217, 217);
+    -webkit-border-radius: 7px;
+    -moz-border-radius:  7px;
+    border-radius:  7px;
+}
+
+.formFirstEdit h1{
+    -webkit-border-radius: 5px 5px 0 0;
+    -moz-border-radius: 5px 5px 0 0;
+    border-radius: 5px 5px 0 0;
+}
+
+.highlightedRow, h1{
+  background:  rgba(128, 128, 128, 0.3);  
+}
+
+.id, .idTd{
+    display: none;
+}
+
+.infoBox{    
+    float:left;
+    width: 100%;
+    background: rgb(250, 247, 247);
+    border: 1px solid rgb(217, 217, 217);
+    padding-bottom: 20px;
+}
+
+.infoPhotoBox, .infoTextBox{
+    float: left;
+    width: 30%;
+    padding-left: 15px;
+    padding-top: 20px;
+    text-align:left;
+}
+
+.infoTextBox{
+    width: 70%;
+}
+
+.infoTel, .infoEmail, .infoAddress, .labelTel, .labelEmail, .labelAddress{
+    width: 70%;
+    height: 60px;
+    margin: 0;
+    padding: 0;
+    float:left;
+    padding-top: 15px;
+} 
+
+.labelTel, .labelEmail, .labelAddress{
+    width: 30%;
+    padding-left: 15px;
+}
+
+.infoPhoto{
+    float: left;    
+    width: 180px;
+    height: 180px;
+    /*box-shadow: 0px 0px 3px 3px rgba(31, 70, 87, 0.5);*/
+    border: 2px solid rgb(217, 217, 217);
+}
+
+input[type=hidden]{
+    position:absolute;
+}
+
+.loginForm{
+    float:left;
+    margin-top: 50px;
+    margin-left: 40%;
+    margin-right: 40%;
+    margin-bottom: 250px;
+    width: 20%;       
+    box-shadow:  0px 10px 10px 2px rgba(111, 106, 106, 0.2);
+    -webkit-box-shadow:  0px 10px 10px 2px rgba(111, 106, 106, 0.2);
+    -moz-box-shadow:  0px 10px 10px 2px rgba(111, 106, 106, 0.2);
+    -webkit-border-radius: 0 0 10px 10px ;
+    -moz-border-radius: 0 0 10px 10px ;
+    border-radius: 0 0 10px 10px ;
+}
+
+.loginTextLabel{
+    width:100%;
+    float:left;
+    text-align: center;
+    font-size: 1em; 
+    height: 30px;   
+    margin-top: 10px;
+    padding-top: 5px;
+}
+
+.loginLabel{
+    color: rgb(111, 106, 106);
+    float: left;
+    width: 100%;
+    height: 50px;
+    padding-top: 10px;
+    font-size:  1.3em;
+    background: rgb(250, 247, 247);
+    text-align: center;
+    -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid rgb(217, 217, 217);
+}
+
+.loginTextBox, .loginButton, .passwordTextBox{
+    width: 100%;
+    float:left;    
+    }
+
+.loginButton input[type=submit]{
+    background: /*rgb(230, 0, 0)*/ #3e4f59;
+    border:none;
+    color: white;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    height: 40px;
+}
+
+.loginTextBox input[type=text], .loginTextBox input[type=password], .loginButton input[type=button]{
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    float: left;
+    height: 40px;
+    border: none;
+    margin-bottom: 10px;
+    text-align:center;
+    background-color: rgb(234, 231, 231)
+}
+
+.managerDetails img, .managerEdit img, .managerDelete img{    
+    height: 30px; 
+    margin-left: 8px;
+    float:none;    
+}
+
+#manTable{
+    float:left;
+    width:100%;
+}
+
+#manTable.ForTeacher tr td{
+    border-collapse:collapse;
+    border-right: 1px solid rgb(128, 134, 255);
+}
+
+
+.myDialog .ui-dialog-titlebar{
+    background: #3e4f59;
+}
+
+.myDialog .ui-dialog-titlebar-close{
+    background: red;
+    border: none; 
+    width: 20px;  
+    color: white;
+    text-align:center;
+    padding:0;
+    font-size: 1em;   
+    max-width: none;
+}
+
+.myDialog .ui-dialog-content{
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+#newManagerForm, .editBox{
+    margin: 0;
+    padding: 10px;
+}
+
+#newManagerForm input, .editBox input{
+    text-align:center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 50px;
+    color: rgb(128, 128, 128);
+    border: none;
+    margin-top: 15px;    
+    box-shadow:  0 0 5px 3px rgba(215, 210, 210, 0.8);
+    border-radius: 3px;
+}
+
+#newManagerForm input[type=submit], .editBox input[type=submit]{
+    background: rgb(128, 134, 255);
+    color: white;
+}
+
+#newManagerForm input[type=submit]:hover, .editBox input[type=submit]:hover{
+    box-shadow: 0 0 5px 2px blue;
+}
+
+.parentControlPack{
+    width: 100%;
+    height: 30px;
+    float:left;
+    border-bottom: black solid 1px;
+    
+}
+
+.parentControlPack div{
+    width: 300px;
+    text-align: center;
+    border: black solid 1px;
+    height: 30px;
+    padding-top: 3px;
+    float: left;
+    cursor: pointer;
+}
+
+.parentControlPack div.active{
+    background: black;
+    color: white;
+    border: none;
+}
+
+ footer{
+     text-align:center;
+     padding: 50px 0 50px 0;
+     width: 100%;
+     float: left;
+     
+     text-align: center;   
+     background: rgb(111, 106, 106);  
+ }
+
+ .schoolName, .adminSchoolName{
+     position: relative;     
+     float:left;
+     width: 20%;
+     margin-left: 40%;
+     margin-right: 40%;
+     height: 100px;
+     padding-left: 10px;
+     padding-top: 5px;
+ }
+
+ .adminSchoolName{
+     margin-left: 2%;
+     margin-right:0;
+ }
+
+ .schoolName img, .adminSchoolName img{
+     width: 100%;
+ }
+
+  .schoolName p, .adminSchoolName p{
+       position: absolute;
+       top: 30%;
+       font-size: 1.4em;
+       color: white;
+       left: 40%;
+  }
+
+  .save, .cancel{
+      cursor: pointer;
+      float: left;
+      width: 38%;
+      border-radius: 3px;
+      -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    text-align: center;
+    color: white;
+    margin-top: 6px;
+  }
+  .save{
+      background: rgb(14, 178, 18);
+      margin-left: 10%;
+  }
+  .cancel{
+      background: rgb(202, 6, 6);
+      margin-left: 4%;
+      margin-right: 10%;
+  }
+
+  .tableHead{
+      width: 100%;
+      float: left;      
+  }
+
+  .tableDirClass h2 {
+       float:left;
+       text-align: left;
+       padding: 0;
+   }
+
+  .tableDirClass h2 div{
+      float: left;
+      margin-left: 10px;
+      margin-top: 8px;
+  }
+
+  .tableDirClass h2 a img{
+      width:30px;
+      margin-left: 3px;
+      float: left;
+      margin-top: 5px;
+      margin-bottom: 5px;
+  }
+
+  .tableDirClass  a {
+      margin-bottom: 0;
+      margin-right: 20px;  
+      float: left;    
+  }
+
+   .tableDirClass  a:hover, .tableDirClass  a:focus{
+       color: white;
+   }
+
+  .tableDirClass  a div{
+      margin-top: 10px;
+      margin-left: 0;
+  }
+
+  .tableDirClass table tr td a{
+      float: none;
+      margin-bottom: 0;
+      margin-right: 0;  
+  }
+
+  .tableDirClass table tr td a img{
+      float: none;
+      margin-bottom: 0;
+      margin-right: 0;  
+      height:30px;
+      width: auto;
+      margin-left: 5px;
+  }
+
+   .tableDirTimetableEditButtion.hover, .tableDirTimetableEditButtionDesc, .tableDirHeadTeacherEditButtionDesc, .tableDirHeadTeacherEditButtion.hover{     
+      box-shadow: 0 0 3px 3px rgba(23, 28, 38, 0.5);
+      -webkit-border-radius: 40%; 
+    -moz-border-radius: 40%;
+    border-radius: 40%;
+  }
+
+ .tableDirTimetableEditButtionDesc, .tableDirHeadTeacherEditButtionDesc {
+     display: none;
+       float:left;
+       font-size: 0.8em;
+       background: rgba(23, 28, 38, 0.5);
+       -webkit-border-radius: 20px; 
+    -moz-border-radius:20px;
+    border-radius: 20px;
+    margin-top: 5px;
+   }
+
+ .timeTableContainer{
+     float: left;
+     margin-left: 1%;
+     margin-right: 1%;
+     width: 98%;
+     background:rgba(254, 197, 27, 0.7);
+     margin-top: 10px;
+     margin-bottom: 10px;
+     border-radius: 5px;  
+     padding-left: 5%;
+     padding-right: 5%; 
+     -webkit-transition: .5s;
+     transition: .5s;  
+ }
+
+ .timeTableContainer.group {
+     background: rgba(33, 150, 243, 0.7); 
+ }
+ .timeTableContainer.teacher{
+     background: rgba(254, 197, 27, 0.7); 
+ }
+
+
+ #tmtbl{
+     border-radius: 0;
+ }
+
+ #topLine{
+     margin-top:0;
+     padding: 0;
+     float:left;
+     height: 40px;
+     background: rgb(25, 24, 24);
+     width: 100%;     
+ }
+
+ #topLine img{
+     float: left;
+     height: 36px;
+      margin-left: 10%;
+ }
+
+  #topLineLogin{
+      height: 100px;
+      width: 100%;
+      float: left;
+      background: rgb(250, 247, 247);
+      border-bottom: 1px solid rgb(217, 217, 217);
+  }
+
+  .ttAccordingTeacherFilter{
+      float:left;
+      width: 30%;  
+      border: 2px solid transparent; 
+  }
+
+  .ttAccordingClassFilter{
+      float:left;
+      width: 40%;     
+      border-bottom: 2px solid transparent; 
+  }
+
+  .ttDayTable{
+      float: left;
+      margin-left: 1%;
+      width: 15%;
+      margin-top: 30px;
+  }
+
+  .switchBox{
+      width: 10%;
+      float:left;      
+  }
+
+  .switchBox div img{
+      height: 40px;
+      float:left;
+      cursor:pointer;
+  }
+
+  .switchTimetableBox {
+      float: left;
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin: 3px 1px 3px 1px;
+  /*margin: 5px 1px 5px 1px;*/
+}
+
+  .switchTimetableBox input {display:none;}
+
+  .slider {
+  position: absolute;
+  cursor:  pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fec51b;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+  .slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+ .switchTimetableBox input:checked + .slider {
+  background-color: #2196F3;
+}
+
+.switchTimetableBox input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+.switchTimetableBox input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.teacherControllPack{
+    width: 100%;
+    float: left;
+    border: 1px solid black;
+}
+.teacherControllPack div {
+    float: left;
+    
+}
+
+ .userButtonPack{
+      width: 60%;
+      float:left;
+      margin-left: 18%;
+      padding-right: 2%;
+      height: 100px;      
+  }
+
+
+ .userButtonPack a img{          
+     float:right;
+     height: 80px;
+     margin-right: 30px;
+     margin-top: 10px; 
+     padding: 2px;    
+     border-radius: 50%;
+ }
+
+ .userButtonPack a div{ 
+     display: none;    
+     position: absolute;    
+     width: 100px;
+     font-size: 0.8em;
+     text-align: center;
+     box-shadow: 0 0 5px 3px #3e4f59;
+     background: white;  
+      top: 135px;
+      border-radius: 10px;  
+     
+ }
+
+ .userButtonPack a img:hover{
+     box-shadow: 0 0 5px 3px #3e4f59;          
+ }
+
+
+ #sbj{     
+     right: 59px;
+ }
+
+ #grp{
+     right: 168px;
+ }
+
+ #ppl{
+     right: 278px;
+ }
+
+ #prt{
+     right: 388px; 
+ }
+
+ #tcr{
+     right: 499px;
+ }
+
+ #mnr{
+     right: 609px;
+ }
+

@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - ekundalik.uz</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body ng-app="MyApp">
+
+    <div id="topLine">
+        <img src="~/image/logo/elk.uz.png" />
+        <div id="appTitle">undalik</div> 
+        <div id="userId">
+            @*@if (User.Identity.IsAuthenticated)
+            {
+
+                var db = new eDnevnik.DnevnikEntities();
+                string fullName = null;
+                int id = 0;
+                string userName = User.Identity.Name;
+                if (userName == db.Admins.FirstOrDefault().UserName || userName == db.Admins.FirstOrDefault().Email)
+                {
+                    fullName = db.Admins.Where(a => (a.UserName.Equals(userName)) || (a.Email.Equals(userName))).FirstOrDefault().UserName;
+                    id = db.Admins.Where(a => (a.UserName.Equals(userName)) || (a.Email.Equals(userName))).FirstOrDefault().AdminID;
+                }
+                else if (userName == db.Directors.FirstOrDefault().UserName || userName == db.Directors.FirstOrDefault().Email)
+                {
+                    fullName = db.Directors.Where(a => (a.Email.Equals(userName)) || (a.UserName.Equals(userName))).FirstOrDefault().LastName +
+                        " " + db.Directors.Where(a => (a.Email.Equals(userName)) || (a.UserName.Equals(userName))).FirstOrDefault().FirstName;
+                }
+                else if (userName == db.Teachers.FirstOrDefault().UserName || userName == db.Teachers.FirstOrDefault().Email)
+                {
+                    fullName = db.Teachers.Where(a => (a.Email.Equals(userName)) || (a.UserName.Equals(userName))).FirstOrDefault().LastName +
+                        " " + db.Teachers.Where(a => (a.Email.Equals(userName)) || (a.UserName.Equals(userName))).FirstOrDefault().FirstName;
+                }
+                else if (userName == db.Parents.FirstOrDefault().UserName || userName == db.Parents.FirstOrDefault().Email)
+                {
+                    fullName = db.Parents.Where(a => (a.Email.Equals(userName)) || (a.UserName.Equals(userName))).FirstOrDefault().LastName +
+                        " " + db.Parents.Where(a => (a.Email.Equals(userName)) || (a.UserName.Equals(userName))).FirstOrDefault().FirstName;
+                }
+                else
+                {
+                    fullName = "Вы не авторизованы";
+                }
+                <a>
+                    @fullName;
+                </a>
+            }*@
+             
+            
+        </div>
+    </div>
+
+
+    @*<div class="navbar navbar-inverse navbar-fixed-top" id="MainMenu">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+
+                @{ 
+                    eDnevnik.Models.DnevnikEntities _db = new eDnevnik.Models.DnevnikEntities();
+
+                    string userName = User.Identity.Name;
+                    int userID = 0;
+
+                    if (userName == _db.Teachers.FirstOrDefault().UserName || userName == _db.Teachers.FirstOrDefault().Email)
+                    {
+                        userID = _db.Teachers.Where(t => (t.Email.Equals(userName)) || (t.UserName.Equals(userName))).FirstOrDefault().Id;
+                    }
+
+                }
+                    
+
+                @if (User.IsInRole("Admin"))
+                {
+                     @Html.ActionLink("eDnevnik", "Index", "Teacher", new { area = "" }, new { @class = "navbar-brand" })
+                }
+                @if (User.IsInRole("Teacher"))
+                {
+                    @Html.ActionLink("eDnevnik", "Index", "ForTeacher", new { area = "", id = userID }, new { @class = "navbar-brand" })
+                }
+                @if (User.IsInRole("Pupil"))
+                {
+                   
+
+                    string pupName = User.Identity.Name;
+                    int pupID = _db.Pupils.Where(p => p.Username.Equals(userName)).FirstOrDefault().Id;
+
+                    @Html.ActionLink("eDnevnik", "Index", "ForPupils", new { area = "", id = pupID }, new { @class = "navbar-brand" })
+                }
+                
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Главная", "Index", "Home")</li>
+                    <li>@Html.ActionLink("О Программе", "About", "Home")</li>
+                    <li>@Html.ActionLink("О Нас", "Contact", "Home")</li>
+
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <div class="navbar-right">
+                            <ul class="nav navbar-nav">
+                                <li><a>Вход</a></li>
+                                <li>@Html.ActionLink("Войти", "Login", "Home", null, new { @class = "btn btn-success" })</li>
+                            </ul>
+                        </div>
+                    }
+
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="navbar-right">
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a>@User.Identity.Name</a></li>
+                                <li>@Html.ActionLink("Выйти", "LogOff", "Home", null, new { @class = "btn btn-success" })</li>
+                            </ul>
+                        </div>
+                    }
+
+                   
+                </ul>
+            </div>
+        </div>
+    </div>*@
+    <div class="body-content">
+        @RenderBody()
+        <hr />
+        
+    </div>
+    <footer>
+        <p>&copy; @DateTime.Now.Year - MasterWestt</p>
+    </footer>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jquery3")
+    @Scripts.Render("~/bundles/jqueryUi")
+    @Styles.Render("~/bundles/jqueryUiCss")
+    @Scripts.Render("~/bundles/angular")
+    @Scripts.Render("~/bundles/highcharts")
+    <script src="~/Scripts/MyApp.js"></script>
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

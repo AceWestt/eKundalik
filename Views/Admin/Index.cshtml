@@ -1,0 +1,1531 @@
+﻿@using eDnevnik.Models;
+@{
+    ViewBag.Title = "Admin";
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery3")
+@Scripts.Render("~/bundles/jqueryUi")
+@Styles.Render("~/bundles/jqueryUiCss")
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        function getSubjects() {
+            $("#adminContent").empty();
+            $("#adminContent").append("<div class='tableHead'><h2>Управление Предметами</h2><a href='#'><div class='addButton'>+</div></a></div>");
+
+            $("#adminContent").append($("<div id='manTable'><table><tr><th>№</th><th>Название Предмета</th><th>Предназначенный Уровень</th><th class='idTd'>ID</th><th>Управление</th></tr></table>" +
+               "<div id='endAdminTable'></div></div>"));
+            var $i = 0;
+            $.ajax({
+                url: '@Url.Action("getAllSubjects", "Admin")',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $(data).each(function (index, item) {
+                        $i++;
+                        $("#adminContent table").append($("<tr><td>" + $i + "</td><td class='lastNameTd'>" + item.SubjectName + "</td><td class='firstNameTd'>" +
+                            item.Level + "</td>" +
+                            "<td class='idTd'>" + item.Id + "</td><td>" +                         
+                            "<a href='#' class='managerEdit'><img src='/image/icons/edit.png' alt='Редактировать' /></a>" +
+                            "<a href='#' class='managerDelete'><img src='/image/icons/delete.png' alt='Удалить' /></a>" +
+                            "</td></tr>"));
+
+                    });
+                    $("#adminContent table td a").mouseenter(function () {
+                        $(this).children("img").stop().animate({ 'height': '40px', 'border': '1px rgba(255, 255, 255, 0.7) solid' }, 'slow');
+                    });
+                    $("#adminContent table td a").mouseleave(function () {
+                        $(this).children("img").stop().animate({ 'height': '30px', 'border': 'none' }, 'slow');
+                    });
+                   
+
+                    $(".managerEdit").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        $("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();                       
+                        $.ajax({
+                            url: '@Url.Action("subjectEditDetails","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                $(data).each(function (index, item) {
+                                    $("#adminContent").append(
+                               "<div class='editBox'>" +
+                               "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+                               "<input type='text' class='' name='SubjectName' value='" + item.SubjectName + "'><br>" +
+                               "<input type='text' class='' name='Level' value='" + item.Level + "'><br>" +
+                                "<input type='button' name='Submit' value='Сохранить Изменения'><br>" +
+                               "</div>");
+                                    $(function () {
+                                        $(".editBox").dialog({
+                                            modal: true,
+                                            resizable: false,
+                                            draggable: false,
+                                            dialogClass: 'myDialog',
+                                            closeText: 'X',
+                                            title: 'Редактировать Предмет',
+                                            show: 'slide',
+                                            hide: 'slide',
+                                            stack: false
+
+                                        });
+                                    });
+
+                                    $(".editBox input[type=button]").click(function () {
+                                        $.ajax({
+                                            url: '@Url.Action("editSubject", "Admin")',
+                                            method: 'post',
+                                            data: JSON.stringify({
+                                                "id": ID,
+                                                "SubjectName": $(".editBox input[name=SubjectName]").val(),
+                                                "Level": $(".editBox input[name=Level]").val()
+                                            }),
+                                            dataType: 'json',
+                                            contentType: "application/json; charset=utf-8",
+                                            success: function () {
+                                                $(".editBox").dialog('close');
+                                                getSubjects();
+
+                                            },
+                                            error: function () {
+                                                alert('ee');
+                                            }
+                                        });
+                                    });
+
+
+
+                                });
+
+                            }
+                        });
+
+
+                    });
+
+                    $(".managerDelete").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        //$("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        alert(ID);
+                        $.ajax({
+                            url: '@Url.Action("deleteSubject","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function () {
+                                alert("Предмет удален!");
+                                getSubjects();
+                            },
+                            error: function () {
+                                alert('ee');
+                            }
+                        });
+                    });
+
+
+
+
+                }
+            });
+
+
+
+
+            $(".addButton").mouseenter(function () {
+                $(".addButton").stop().animate({ "width": "300px" }, function () {
+                    $(".addButton").empty();
+                    $(".addButton").append("Добавить Предмет");
+                });
+
+            });
+            $(".addButton").mouseleave(function () {
+                $(".addButton").empty();
+                $(".addButton").append("+");
+                $(".addButton").stop().animate({ "width": "50px" });
+
+            });
+            addSubjectFunction();
+
+        };
+
+        function getManagers() {
+            $("#adminContent").empty();
+            $("#adminContent").append("<div class='tableHead'><h2>Управление Менеджерами</h2><a href='#'><div class='addButton'>+</div></a></div>");
+
+            $("#adminContent").append($("<div id='manTable'><table><tr><th>№</th><th>Фамилия</th><th>Имя</th><th>Телефон</th><th>E-mail</th><th>ID</th><th>Управление</th></tr></table>" +
+               "<div id='endAdminTable'></div></div>"));
+            var $i = 0;
+            $.ajax({
+                url: '@Url.Action("getAllManagers", "Admin")',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $(data).each(function (index, item) {
+                        $i++;
+                        $("#adminContent table").append($("<tr><td>" + $i + "</td><td class='lastNameTd'>" + item.LastName + "</td><td class='firstNameTd'>" +
+                            item.FirstName + "</td>" +
+                            "<td class='phoneTd'>" + item.Phone + "</td>" +
+                            "<td class='emailTd'>" + item.Email + "</td>" +
+                            "<td class='idTd'>" + item.Id + "</td>" +
+                            "<td><a href='#' class='managerDetails'><img src='/image/icons/details.png' alt='Детали' /></a>" +
+                            "<a href='#' class='managerEdit'><img src='/image/icons/edit.png' alt='Редактировать' /></a>" +
+                            "<a href='#' class='managerDelete'><img src='/image/icons/delete.png' alt='Удалить' /></a>" +
+                            "</tr>"));
+
+                    });
+                    $("#adminContent table td a").mouseenter(function () {
+                        $(this).children("img").stop().animate({ 'height': '40px', 'border':'1px rgba(255, 255, 255, 0.7) solid' }, 'slow');
+                    });
+                    $("#adminContent table td a").mouseleave(function () {
+                        $(this).children("img").stop().animate({ 'height': '30px', 'border':'none' }, 'slow');
+                    });
+                    $(".managerDetails").click(function () {
+                        $(".detailBox").remove();
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var name = $(this).closest("td").siblings(".lastNameTd").html() + " " + $(this).closest("td").siblings(".firstNameTd").html();
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $("#manTable").stop().animate({ width: '60%' }).after('<div class="detailBox">' + '<h1><b>' + name + '</b></h1>' +
+                            '<div class="infoBox">' +
+                            '<div class="infoPhotoBox"><img class="infoPhoto" alt="photo" src="/image/icons/details.png"/></div>' +
+                            '<div class="infoTextBox"><div class="labelTel"><b>Телефон:</b></div>' +
+                            '<div class="infoTel">+99894000000000</div>' +
+                            '<div class="labelEmail"><b>e-mail:</b></div>' +
+                            '<div class="infoEmail">+99894000000000</div>' +
+                            '<div class="labelAddress"><b>Адрес:</b></div>' +
+                            '<div class="infoAddress">Бляшкент г. Ул. Сучкина 23 притон</div></div>' +
+                            '</div>' +
+                            '<div class="infoboxClose"></div>'+
+                         '</div>');
+
+                        managerDetails(ID);
+                    });
+
+                    $(".managerEdit").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        $("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("managerEditDetails","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                $(data).each(function (index, item) {
+                                    $("#adminContent").append(
+                               "<div class='editBox'>" +
+                               "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+                               "<input type='text' class='' name='UserName' value='"+item.UserName+"'><br>" +
+                               "<input type='password' class='' name='Password' value='" + item.Password + "'><br>" +
+                               "<input type='text' class='' name='LastName' value='"+ item.LastName +"'><br>" +
+                               "<input type='text' class='' name='FirstName' value='" + item.FirstName + "'><br>" +
+                               //"<input type='text' class='' name='DoB' value='Дата Рождения'><br>" +
+                               "<input type='text' class='' name='Address' value='" + item.Address + "'><br>" +
+                               "<input type='text' class='' name='Phone' value='" + item.Phone + "'><br>" +
+                               "<input type='text' class='' name='Email' value='" + item.Email + "'><br>" +
+                               "<input type='button' name='Submit' value='Сохранить Изменения'><br>" +
+                               "</div>");
+                                    $(function () {
+                                        $(".editBox").dialog({
+                                            modal: true,
+                                            resizable: false,
+                                            draggable: false,
+                                            dialogClass: 'myDialog',
+                                            closeText: 'X',
+                                            title: 'Новый Менеджер',
+                                            show: 'slide',
+                                            hide: 'slide',
+                                            stack: false
+
+                                        });
+                                    });
+
+                                    $(".editBox input[type=button]").click(function () {
+                                        $.ajax({
+                                            url: '@Url.Action("editManager", "Admin")',
+                                            method: 'post',
+                                            data: JSON.stringify({
+                                                "id": ID,
+                                                "UserName": $(".editBox input[name=UserName]").val(),
+                                                "Password": $(".editBox input[name=Password]").val(),
+                                                "LastName": $(".editBox input[name=LastName]").val(),
+                                                "FirstName": $(".editBox input[name=FirstName]").val(),
+                                                //Dob: $("#newManagerForm input[name=DoB]").val(),
+                                                "Address": $(".editBox input[name=Address]").val(),
+                                                "Phone": $(".editBox input[name=Phone]").val(),
+                                                "Email": $(".editBox input[name=Email]").val()
+                                            }),
+                                            dataType: 'json',
+                                            contentType: "application/json; charset=utf-8",
+                                            success: function () {
+                                                $(".editBox").dialog('close');
+                                                getManagers();
+
+                                            },
+                                            error: function () {
+                                                alert('ee');
+                                            }
+                                        });
+                                    });
+
+
+
+                                });
+
+                            }
+                        });
+
+
+                    });
+
+                    $(".managerDelete").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        //$("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("deleteManager","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function () {
+                                alert("Менеджер удален!");
+                                getManagers();
+                            },
+                            error: function () {
+                                alert('ee');
+                            }
+                        });
+                    });
+
+
+
+
+                }
+            });
+
+
+
+
+            $(".addButton").mouseenter(function () {
+                $(".addButton").stop().animate({ "width": "300px" }, function () {
+                    $(".addButton").empty();
+                    $(".addButton").append("Добавить менеджера");
+                });
+
+            });
+            $(".addButton").mouseleave(function () {
+                $(".addButton").empty();
+                $(".addButton").append("+");
+                $(".addButton").stop().animate({ "width": "50px" });
+
+            });
+            addManagerFunction();
+
+        };
+
+        function getTeachers() {
+            $("#adminContent").empty();
+            $("#adminContent").append("<div class='tableHead'><h2>Управление Учителями</h2><a href='#'><div class='addButton addTeacherButton'>+</div><div class='addButton addMore'>++</div></a></div>");
+
+            $("#adminContent").append($("<div id='manTable'><table><tr><th>№</th><th>Фамилия</th><th>Имя</th><th>Телефон</th><th>E-mail</th><th>ID</th><th>Управление</th></tr></table>" +
+               "<div id='endAdminTable'></div></div>"));
+            var $i = 0;
+            $.ajax({
+                url: '@Url.Action("getAllTeachers", "Admin")',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $(data).each(function (index, item) {
+                        $i++;
+                        $("#adminContent table").append($("<tr><td>" + $i + "</td><td class='lastNameTd'>" + item.LastName + "</td><td class='firstNameTd'>" +
+                            item.FirstName + "</td>" +
+                            "<td class='phoneTd'>" + item.Phone + "</td>" +
+                            "<td class='emailTd'>" + item.Email + "</td>" +
+                            "<td class='idTd'>" + item.Id + "</td>" +
+                            "<td><a href='#' class='managerDetails'><img src='/image/icons/details.png' alt='Детали' /></a>" +
+                            "<a href='#' class='managerEdit'><img src='/image/icons/edit.png' alt='Редактировать' /></a>" +
+                            "<a href='#' class='managerDelete'><img src='/image/icons/delete.png' alt='Удалить' /></a>" +
+                            "</tr>"));
+
+                    });
+                    $("#adminContent table td a").mouseenter(function () {
+                        $(this).children("img").stop().animate({ 'height': '40px', 'border': '1px rgba(255, 255, 255, 0.7) solid' }, 'slow');
+                    });
+                    $("#adminContent table td a").mouseleave(function () {
+                        $(this).children("img").stop().animate({ 'height': '30px', 'border': 'none' }, 'slow');
+                    });
+                    $(".managerDetails").click(function () {
+                        $(".detailBox").remove();
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var name = $(this).closest("td").siblings(".lastNameTd").html() + " " + $(this).closest("td").siblings(".firstNameTd").html();
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $("#manTable").stop().animate({ width: '60%' }).after('<div class="detailBox">' + '<h1><b>' + name + '</b></h1>' +
+                            '<div class="infoBox">' +
+                            '<div class="infoPhotoBox"><img class="infoPhoto" alt="photo" src="/image/icons/details.png"/></div>' +
+                            '<div class="infoTextBox"><div class="labelTel"><b>Телефон:</b></div>' +
+                            '<div class="infoTel">+99894000000000</div>' +
+                            '<div class="labelEmail"><b>e-mail:</b></div>' +
+                            '<div class="infoEmail">+99894000000000</div>' +
+                            '<div class="labelAddress"><b>Адрес:</b></div>' +
+                            '<div class="infoAddress">Бляшкент г. Ул. Сучкина 23 притон</div></div>' +
+                            '</div>' +
+                            '<div class="infoboxClose"></div>' +
+                         '</div>');
+
+                        teacherDetails(ID);
+                    });
+
+                    $(".managerEdit").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        $("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("teacherEditDetails","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                $(data).each(function (index, item) {
+                                    $("#adminContent").append(
+                               "<div class='editBox'>" +
+                               "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+                               "<input type='text' class='' name='UserName' value='" + item.UserName + "'><br>" +
+                               "<input type='password' class='' name='Password' value='" + item.Password + "'><br>" +
+                               "<input type='text' class='' name='LastName' value='" + item.LastName + "'><br>" +
+                               "<input type='text' class='' name='FirstName' value='" + item.FirstName + "'><br>" +
+                               //"<input type='text' class='' name='DoB' value='Дата Рождения'><br>" +
+                               "<input type='text' class='' name='Address' value='" + item.Address + "'><br>" +
+                               "<input type='text' class='' name='Phone' value='" + item.Phone + "'><br>" +
+                               "<input type='text' class='' name='Email' value='" + item.Email + "'><br>" +
+                               "<input type='button' name='Submit' value='Сохранить Изменения'><br>" +
+                               "</div>");
+                                    $(function () {
+                                        $(".editBox").dialog({
+                                            modal: true,
+                                            resizable: false,
+                                            draggable: false,
+                                            dialogClass: 'myDialog',
+                                            closeText: 'X',
+                                            title: 'Новый Менеджер',
+                                            show: 'slide',
+                                            hide: 'slide',
+                                            stack: false
+
+                                        });
+                                    });
+                                });
+
+                                $(".editBox input[type=button]").click(function () {
+                                    $.ajax({
+                                        url: '@Url.Action("editTeacher", "Admin")',
+                                        method: 'post',
+                                        data: JSON.stringify({
+                                            "id": ID,
+                                            "UserName": $(".editBox input[name=UserName]").val(),
+                                            "Password": $(".editBox input[name=Password]").val(),
+                                            "LastName": $(".editBox input[name=LastName]").val(),
+                                            "FirstName": $(".editBox input[name=FirstName]").val(),
+                                            //Dob: $("#newManagerForm input[name=DoB]").val(),
+                                            "Address": $(".editBox input[name=Address]").val(),
+                                            "Phone": $(".editBox input[name=Phone]").val(),
+                                            "Email": $(".editBox input[name=Email]").val()
+                                        }),
+                                        dataType: 'json',
+                                        contentType: "application/json; charset=utf-8",
+                                        success: function () {
+                                            $(".editBox").dialog('close');
+                                            getTeachers();
+
+                                        },
+                                        error: function () {
+                                            alert('ee');
+                                        }
+                                    });
+                                });
+
+                            }
+                        });
+
+
+                    });
+
+                    $(".managerDelete").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        //$("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("deleteTeacher","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function () {
+                                alert("Менеджер удален!");
+                                getTeachers();
+                            },
+                            error: function () {
+                                alert('ee');
+                            }
+                        });
+                    });
+
+
+
+
+                }
+            });
+
+            $(".addButton").mouseenter(function () {
+                $(this).stop().animate({ "width": "300px" }, function () {
+                    $(this).empty();
+                    $(this).append("Добавить Учителя");
+                });
+
+            });
+            $(".addButton").mouseleave(function () {
+                $(this).empty();
+                $(this).append("+");
+                $(this).stop().animate({ "width": "50px" });
+
+            });
+
+            $(".addButton.addMore").mouseenter(function () {
+                $(this).stop().animate({ "width": "400px" }, function () {
+                    $(this).empty();
+                    $(this).append("Добавить Несколько Учителей");
+                });
+
+            });
+            $(".addButton.addMore").mouseleave(function () {
+                $(this).empty();
+                $(this).append("++");
+                $(this).stop().animate({ "width": "50px" });
+
+            });
+            addTeacherFunction();
+            addManyTeachers();
+
+        };
+
+        function getParents() {
+            $("#adminContent").empty();
+            $("#adminContent").append("<div class='tableHead'><h2>Управление Родителями</h2><a href='#'><div class='addButton addTeacherButton'>+</div><div class='addButton addMore'>++</div></a></div>");
+
+            $("#adminContent").append($("<div id='manTable'><table><tr><th>№</th><th>Фамилия</th><th>Имя</th><th>Телефон</th><th>E-mail</th><th>ID</th><th>Управление</th></tr></table>" +
+               "<div id='endAdminTable'></div></div>"));
+            var $i = 0;
+            $.ajax({
+                url: '@Url.Action("getAllParents", "Admin")',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $(data).each(function (index, item) {
+                        $i++;
+                        $("#adminContent table").append($("<tr><td>" + $i + "</td><td class='lastNameTd'>" + item.LastName + "</td><td class='firstNameTd'>" +
+                            item.FirstName + "</td>" +
+                            "<td class='phoneTd'>" + item.Phone + "</td>" +
+                            "<td class='emailTd'>" + item.Email + "</td>" +
+                            "<td class='idTd'>" + item.Id + "</td>" +
+                            "<td><a href='#' class='managerDetails'><img src='/image/icons/details.png' alt='Детали' /></a>" +
+                            "<a href='#' class='managerEdit'><img src='/image/icons/edit.png' alt='Редактировать' /></a>" +
+                            "<a href='#' class='managerDelete'><img src='/image/icons/delete.png' alt='Удалить' /></a>" +
+                            "</tr>"));
+
+                    });
+                    $("#adminContent table td a").mouseenter(function () {
+                        $(this).children("img").stop().animate({ 'height': '40px', 'border': '1px rgba(255, 255, 255, 0.7) solid' }, 'slow');
+                    });
+                    $("#adminContent table td a").mouseleave(function () {
+                        $(this).children("img").stop().animate({ 'height': '30px', 'border': 'none' }, 'slow');
+                    });
+                    $(".managerDetails").click(function () {
+                        $(".detailBox").remove();
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var name = $(this).closest("td").siblings(".lastNameTd").html() + " " + $(this).closest("td").siblings(".firstNameTd").html();
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $("#manTable").stop().animate({ width: '60%' }).after('<div class="detailBox">' + '<h1><b>' + name + '</b></h1>' +
+                            '<div class="infoBox">' +
+                            '<div class="infoPhotoBox"><img class="infoPhoto" alt="photo" src="/image/icons/details.png"/></div>' +
+                            '<div class="infoTextBox"><div class="labelTel"><b>Телефон:</b></div>' +
+                            '<div class="infoTel">+99894000000000</div>' +
+                            '<div class="labelEmail"><b>e-mail:</b></div>' +
+                            '<div class="infoEmail">+99894000000000</div>' +
+                            '<div class="labelAddress"><b>Адрес:</b></div>' +
+                            '<div class="infoAddress">Бляшкент г. Ул. Сучкина 23 притон</div></div>' +
+                            '</div>' +
+                            '<div class="infoboxClose"></div>' +
+                         '</div>');
+
+                        parentDetails(ID);
+                    });
+
+                    $(".managerEdit").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        $("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("parentEditDetails","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                $(data).each(function (index, item) {
+                                    $("#adminContent").append(
+                               "<div class='editBox'>" +
+                               "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+                               "<input type='text' class='' name='UserName' value='" + item.UserName + "'><br>" +
+                               "<input type='password' class='' name='Password' value='" + item.Password + "'><br>" +
+                               "<input type='text' class='' name='LastName' value='" + item.LastName + "'><br>" +
+                               "<input type='text' class='' name='FirstName' value='" + item.FirstName + "'><br>" +
+                               //"<input type='text' class='' name='DoB' value='Дата Рождения'><br>" +
+                               "<input type='text' class='' name='Address' value='" + item.Address + "'><br>" +
+                               "<input type='text' class='' name='Phone' value='" + item.Phone + "'><br>" +
+                               "<input type='text' class='' name='Email' value='" + item.Email + "'><br>" +
+                               "<input type='button' name='Submit' value='Сохранить Изменения'><br>" +
+                               "</div>");
+                                    $(function () {
+                                        $(".editBox").dialog({
+                                            modal: true,
+                                            resizable: false,
+                                            draggable: false,
+                                            dialogClass: 'myDialog',
+                                            closeText: 'X',
+                                            title: 'Новый Менеджер',
+                                            show: 'slide',
+                                            hide: 'slide',
+                                            stack: false
+
+                                        });
+                                    });
+                                });
+
+                                $(".editBox input[type=button]").click(function () {
+                                    $.ajax({
+                                        url: '@Url.Action("editParent", "Admin")',
+                                        method: 'post',
+                                        data: JSON.stringify({
+                                            "id": ID,
+                                            "UserName": $(".editBox input[name=UserName]").val(),
+                                            "Password": $(".editBox input[name=Password]").val(),
+                                            "LastName": $(".editBox input[name=LastName]").val(),
+                                            "FirstName": $(".editBox input[name=FirstName]").val(),
+                                            //Dob: $("#newManagerForm input[name=DoB]").val(),
+                                            "Address": $(".editBox input[name=Address]").val(),
+                                            "Phone": $(".editBox input[name=Phone]").val(),
+                                            "Email": $(".editBox input[name=Email]").val()
+                                        }),
+                                        dataType: 'json',
+                                        contentType: "application/json; charset=utf-8",
+                                        success: function () {
+                                            $(".editBox").dialog('close');
+                                            getParents();
+
+                                        },
+                                        error: function () {
+                                            alert('ee');
+                                        }
+                                    });
+                                });
+
+                            }
+                        });
+
+
+                    });
+
+                    $(".managerDelete").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        //$("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("deleteParent", "Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function () {
+                                alert("Менеджер удален!");
+                                getParents();
+                            },
+                            error: function () {
+                                alert('ee');
+                            }
+                        });
+                    });
+
+
+
+
+                }
+            });
+
+            $(".addButton").mouseenter(function () {
+                $(this).stop().animate({ "width": "300px" }, function () {
+                    $(this).empty();
+                    $(this).append("Добавить Родителя");
+                });
+
+            });
+            $(".addButton").mouseleave(function () {
+                $(this).empty();
+                $(this).append("+");
+                $(this).stop().animate({ "width": "50px" });
+
+            });
+
+            $(".addButton.addMore").mouseenter(function () {
+                $(this).stop().animate({ "width": "400px" }, function () {
+                    $(this).empty();
+                    $(this).append("Добавить Несколько Родителей");
+                });
+
+            });
+            $(".addButton.addMore").mouseleave(function () {
+                $(this).empty();
+                $(this).append("++");
+                $(this).stop().animate({ "width": "50px" });
+
+            });
+            addParentFunction();
+            addManyParents();
+
+        };
+
+        function getClasses() {
+            $("#adminContent").empty();
+            $("#adminContent").append("<div class='tableHead'><h2>Управление Классами</h2><a href='#'><div class='addButton addTeacherButton'>+</div><div class='addButton addMore'>++</div></a></div>");
+
+            $("#adminContent").append($("<div id='manTable'><table><tr><th>№</th><th>Название</th><th>Классный Руководитель</th><th>Кольво Учащихся</th><th>ID</th><th>Управление</th></tr></table>" +
+               "<div id='endAdminTable'></div></div>"));
+            var $i = 0;
+            $.ajax({
+                url: '@Url.Action("getAllClasses", "Admin")',
+                method: 'post',
+                dataType: 'json',
+                success: function (data) {
+                    $(data).each(function (index, item) {
+                        $i++;
+                        $("#adminContent table").append($("<tr><td>" + $i + "</td><td class='classNameTd'>" + item.Level +"й " + item.Name + "</td><td class='classLeaderTd'>" +
+                            item.Teacher + "</td>" +
+                            "<td class='pupilAmountTd'>" + "" + "</td>" +
+                            "<td class='idTd'>" + item.Id + "</td>" +
+                            "<td>" +
+                            "<a href='#' class='managerEdit'><img src='/image/icons/edit.png' alt='Редактировать' /></a>" +
+                            "<a href='#' class='managerDelete'><img src='/image/icons/delete.png' alt='Удалить' /></a>" +
+                            "</tr>"));
+
+                    });
+                    $("#adminContent table td a").mouseenter(function () {
+                        $(this).children("img").stop().animate({ 'height': '40px', 'border': '1px rgba(255, 255, 255, 0.7) solid' }, 'slow');
+                    });
+                    $("#adminContent table td a").mouseleave(function () {
+                        $(this).children("img").stop().animate({ 'height': '30px', 'border': 'none' }, 'slow');
+                    });
+
+                    $(".managerEdit").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        $("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        
+                        $.ajax({
+                            url: '@Url.Action("classEditDetails","Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                $(data).each(function (index, item) {
+                                    $("#adminContent").append(
+                               "<div class='editBox'>" +
+                               "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+                               "<input type='text' class='' name='Letter' value='" + item.Name + "'><br>" +
+                               "<input type='text' class='' name='Level' value='" + item.Level + "'><br>" +
+                               "<input type='text' class='' name='Teacher' value='" + item.Teacher + "'><br>" +
+                               "<input type='button' name='Submit' value='Сохранить Изменения'><br>" +
+                               "</div>");
+                                    $(function () {
+                                        $(".editBox").dialog({
+                                            modal: true,
+                                            resizable: false,
+                                            draggable: false,
+                                            dialogClass: 'myDialog',
+                                            closeText: 'X',
+                                            title: 'Редактирование Класса',
+                                            show: 'slide',
+                                            hide: 'slide',
+                                            stack: false
+
+                                        });
+                                    });
+                                });
+
+                                $(".editBox input[type=button]").click(function () {
+                                    $.ajax({
+                                        url: '@Url.Action("editClass", "Admin")',
+                                        method: 'post',
+                                        data: JSON.stringify({
+                                            "id": ID,
+                                            "Name": $(".editBox input[name=Letter]").val(),
+                                            "Level": $(".editBox input[name=Level]").val(),
+                                            "Teacher": $(".editBox input[name=Teacher]").val()
+                                        }),
+                                        dataType: 'json',
+                                        contentType: "application/json; charset=utf-8",
+                                        success: function () {
+                                            $(".editBox").dialog('close');
+                                            getClasses();
+
+                                        },
+                                        error: function () {
+                                            alert('ee');
+                                        }
+                                    });
+                                });
+
+                            }
+                        });
+
+
+                    });
+
+                    $(".managerDelete").click(function () {
+                        $(".editBox").remove();
+                        $(".detailBox").remove();
+                        //$("#manTable").stop().animate({ width: '100%' });
+                        var selected = $(this).closest("tr").hasClass("highlightedRow");
+                        var posTop = $(this).closest("tr").css("top");
+                        $("#adminContent table tr").removeClass("highlightedRow");
+                        $("#adminContent table tr:nth-child(odd)").css({ "background": "#f2f2f2" });
+                        $(this).closest("tr").addClass("highlightedRow");
+                        $(this).closest("tr:nth-child(odd)").css({ "background": "rgba(128, 128, 128, 0.3)" });
+                        var ID = $(this).closest("td").siblings(".idTd").html();
+                        $.ajax({
+                            url: '@Url.Action("deleteClass", "Admin")',
+                            method: 'post',
+                            data: JSON.stringify({ "id": ID }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function () {
+                                alert("Менеджер удален!");
+                                getClasses();
+                            },
+                            error: function () {
+                                alert('ee');
+                            }
+                        });
+                    });
+
+
+
+
+                }
+            });
+
+            $(".addButton").mouseenter(function () {
+                $(this).stop().animate({ "width": "300px" }, function () {
+                    $(this).empty();
+                    $(this).append("Добавить Класс");
+                });
+
+            });
+            $(".addButton").mouseleave(function () {
+                $(this).empty();
+                $(this).append("+");
+                $(this).stop().animate({ "width": "50px" });
+
+            });
+            $(".addButton.addMore").mouseenter(function () {
+                $(this).stop().animate({ "width": "400px" }, function () {
+                    $(this).empty();
+                    $(this).append("Добавить Несколько Классов");
+                });
+
+            });
+            $(".addButton.addMore").mouseleave(function () {
+                $(this).empty();
+                $(this).append("++");
+                $(this).stop().animate({ "width": "50px" });
+
+            });
+            addClassFunction();
+            addManyClassesFunction();
+        };
+
+        function addManagerFunction() {
+            $(".addButton").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='UserName' value='Логин'><br>" +
+        "<input type='password' class='' name='Password' value='Пароль'><br>" +
+        "<input type='text' class='' name='LastName' value='Фамилия'><br>" +
+        "<input type='text' class='' name='FirstName' value='Имя'><br>" +
+        //"<input type='text' class='' name='DoB' value='Дата Рождения'><br>" +
+        "<input type='text' class='' name='Address' value='Адрес Проживания'><br>" +
+        "<input type='text' class='' name='Phone' value='Номер телефона'><br>" +
+        "<input type='text' class='' name='Email' value='Email'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Менеджер',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addManager", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "UserName": $("#newManagerForm input[name=UserName]").val(),
+                            "Password": $("#newManagerForm input[name=Password]").val(),
+                            "LastName": $("#newManagerForm input[name=LastName]").val(),
+                            "FirstName": $("#newManagerForm input[name=FirstName]").val(),
+                            //Dob: $("#newManagerForm input[name=DoB]").val(),
+                            "Address": $("#newManagerForm input[name=Address]").val(),
+                            "Phone": $("#newManagerForm input[name=Phone]").val(),
+                            "Email": $("#newManagerForm input[name=Email]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getManagers();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+             });
+
+        };
+
+        function addSubjectFunction() {
+            $(".addButton").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='SubjectName' value='Предмет'><br>" +
+        "<input type='number' min='1' max='11' step='1' class='' name='Level' value='1'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Предмет',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addSubject", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "SubjectName": $("#newManagerForm input[name=SubjectName]").val(),
+                            "Level": $("#newManagerForm input[name=Level]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getSubjects();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+
+        };
+
+        function addTeacherFunction() {
+            $(".addButton").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='UserName' value='Логин'><br>" +
+        "<input type='password' class='' name='Password' value='Пароль'><br>" +
+        "<input type='text' class='' name='LastName' value='Фамилия'><br>" +
+        "<input type='text' class='' name='FirstName' value='Имя'><br>" +
+        //"<input type='text' class='' name='DoB' value='Дата Рождения'><br>" +
+        "<input type='text' class='' name='Address' value='Адрес Проживания'><br>" +
+        "<input type='text' class='' name='Phone' value='Номер телефона'><br>" +
+        "<input type='text' class='' name='Email' value='Email'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Менеджер',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addTeacher", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "UserName": $("#newManagerForm input[name=UserName]").val(),
+                            "Password": $("#newManagerForm input[name=Password]").val(),
+                            "LastName": $("#newManagerForm input[name=LastName]").val(),
+                            "FirstName": $("#newManagerForm input[name=FirstName]").val(),
+                            //Dob: $("#newManagerForm input[name=DoB]").val(),
+                            "Address": $("#newManagerForm input[name=Address]").val(),
+                            "Phone": $("#newManagerForm input[name=Phone]").val(),
+                            "Email": $("#newManagerForm input[name=Email]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getTeachers();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+
+        };
+
+        function addParentFunction() {
+            $(".addButton").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='UserName' value='Логин'><br>" +
+        "<input type='password' class='' name='Password' value='Пароль'><br>" +
+        "<input type='text' class='' name='LastName' value='Фамилия'><br>" +
+        "<input type='text' class='' name='FirstName' value='Имя'><br>" +
+        //"<input type='text' class='' name='DoB' value='Дата Рождения'><br>" +
+        "<input type='text' class='' name='Address' value='Адрес Проживания'><br>" +
+        "<input type='text' class='' name='Phone' value='Номер телефона'><br>" +
+        "<input type='text' class='' name='Email' value='Email'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Менеджер',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addParent", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "UserName": $("#newManagerForm input[name=UserName]").val(),
+                            "Password": $("#newManagerForm input[name=Password]").val(),
+                            "LastName": $("#newManagerForm input[name=LastName]").val(),
+                            "FirstName": $("#newManagerForm input[name=FirstName]").val(),
+                            //Dob: $("#newManagerForm input[name=DoB]").val(),
+                            "Address": $("#newManagerForm input[name=Address]").val(),
+                            "Phone": $("#newManagerForm input[name=Phone]").val(),
+                            "Email": $("#newManagerForm input[name=Email]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getParents();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+
+        };
+
+        function addClassFunction() {
+            $(".addButton").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='Letter' value='Буква'><br>" +
+        "<input type='text' class='' name='Level' value='Уровень'><br>" +
+        "<input type='text' class='' name='Teacher' value='Классный Руководитель'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Класс',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addClass", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "Name": $("#newManagerForm input[name=Letter]").val(),
+                            "Level": $("#newManagerForm input[name=Level]").val(),
+                            "Teacher": $("#newManagerForm input[name=Teacher]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getClasses();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+
+        };
+
+        function addManyTeachers() {
+            $(".addButton.addMore").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='UserName' value='Логин'><br>" +
+        "<input type='text' class='' name='Amount' value='Коль-во'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Менеджер',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addManyTeachers", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "UserName": $("#newManagerForm input[name=UserName]").val(),
+                            "Amount": $("#newManagerForm input[name=Amount]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getTeachers();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+        };
+
+
+
+        function addManyParents() {
+            $(".addButton.addMore").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='UserName' value='Логин'><br>" +
+        "<input type='text' class='' name='Amount' value='Коль-во'><br>" +
+        "<input type='text' class='' name='ClassId' value='Класс Айди'><br>" +
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Менеджер',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addManyParents", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "UserName": $("#newManagerForm input[name=UserName]").val(),
+                            "Amount": $("#newManagerForm input[name=Amount]").val(),
+                            "ClassId": $("#newManagerForm input[name=ClassId]").val()
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getParents();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+        }
+
+        function addManyClassesFunction() {
+            $(".addButton.addMore").click(function () {
+                $("#newManagerForm").remove();
+                $("#adminContent").append(
+
+        "<div id='newManagerForm'>" +
+        "<form:form id='myForm' action='*' modelAttribute='filters' >" +
+        "<input type='text' class='' name='Letter' value='Буква'><br>" +
+        "<input type='text' class='' name='Amount' value='Кольво'><br>" +        
+        "<input type='button' name='Submit' value='Добавить'><br>" +
+        "</div>");
+
+                $(function () {
+                    $("#newManagerForm").dialog({
+                        modal: true,
+                        resizable: false,
+                        draggable: false,
+                        dialogClass: 'myDialog',
+                        closeText: 'X',
+                        title: 'Новый Класс',
+                        show: 'slide',
+                        hide: 'slide',
+                        stack: false
+
+                    });
+                });
+
+                $("#newManagerForm input[type=button]").click(function () {
+
+                    $.ajax({
+                        url: '@Url.Action("addManyClasses", "Admin")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "Name": $("#newManagerForm input[name=Letter]").val(),
+                            "Amount": $("#newManagerForm input[name=Amount]").val()                            
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function () {
+                            $("#newManagerForm").dialog('close');
+                            getClasses();
+
+                        },
+                        error: function () {
+                            alert('ee');
+                        }
+                    });
+                });
+
+            });
+
+        };
+
+
+        function managerDetails(x) {
+            $.ajax({
+                url: '@Url.Action("managerDetails","Admin")',
+                method: 'post',
+                data: JSON.stringify({ "id": x }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(data).each(function (index, item) {
+
+                            $(".infoPhoto").attr("src", item.ImagePath);
+                            $(".infoTel").html(item.Phone);
+                            $(".infoEmail").html(item.Email);
+                            $(".infoAddress").html(item.Address);
+                    });
+
+                },
+                error: function () {
+                    alert('Sorry!!!');
+                }
+            });
+        };
+
+        
+
+        function teacherDetails(x) {
+            $.ajax({
+                url: '@Url.Action("teacherDetails","Admin")',
+                method: 'post',
+                data: JSON.stringify({ "id": x }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(data).each(function (index, item) {
+
+                        $(".infoPhoto").attr("src", item.ImagePath);
+                        $(".infoTel").html(item.Phone);
+                        $(".infoEmail").html(item.Email);
+                        $(".infoAddress").html(item.Address);
+                    });
+
+                },
+                error: function () {
+                    alert('Sorry!!!');
+                }
+            });
+        };
+
+        function parentDetails(x) {
+            $.ajax({
+                url: '@Url.Action("parentDetails","Admin")',
+                method: 'post',
+                data: JSON.stringify({ "id": x }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(data).each(function (index, item) {
+
+                        $(".infoPhoto").attr("src", item.ImagePath);
+                        $(".infoTel").html(item.Phone);
+                        $(".infoEmail").html(item.Email);
+                        $(".infoAddress").html(item.Address);
+                    });
+
+                },
+                error: function () {
+                    alert('Sorry!!!');
+                }
+            });
+        };
+
+        $("#mnrd").click(function () {
+            getManagers();
+
+        });
+
+        $("#tcrd").click(function () {
+            getTeachers();
+
+        });
+
+        $("#prtd").click(function () {
+            getParents();
+
+        });
+
+        $("#grpd").click(function () {
+            getClasses();
+
+        });
+        $("#sbjd").click(function () {
+            getSubjects();
+
+        });
+
+
+
+
+
+
+    });
+
+
+</script>
+<script>
+   
+</script>
+<div id="topLineLogin">
+    <div class="adminSchoolName">
+        <img src="~/image/icons/lenta/lenta.png" />
+        <p>Школа №000</p>
+    </div>
+    <div class="userButtonPack">        
+        <a href="#"><div class="userBtnDescription" id="sbj">Управление<br /> Предметами</div><img id="sbjd" src="~/image/icons/textbooks.png" alt="Управление Предметами" /></a>        
+        <a href="#"><div class="userBtnDescription" id="grp">Управление<br /> Группами</div><img id="grpd" src="~/image/icons/group.png" alt="Управление Группами" /></a>
+        <a href="#"><div id="ppl">Управление<br /> Учениками</div><img id="ppld" src="~/image/icons/pupil.png" alt="Управление Учениками" /></a>
+        <a href="#"><div id="prt">Управление<br /> Родителями</div><img id="prtd" src="~/image/icons/parent_icon.png" alt="Управление Родителями" /></a>
+        <a href="#"><div id="tcr">Управление<br /> Учителями</div><img id="tcrd" src="~/image/icons/teacher.png" alt="Управление учителями школы" /></a>
+        <a href="#"><div id="mnr">Управление<br /> Менеджером</div><img id="mnrd" src="~/image/icons/Manager-512.png" alt="Управление менеджером школы" /></a>
+    </div>    
+</div>
+<div id="adminContent">
+    
+</div>
+
+

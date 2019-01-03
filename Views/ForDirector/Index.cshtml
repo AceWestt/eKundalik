@@ -1,0 +1,140 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery3")
+@Scripts.Render("~/bundles/jqueryUi")
+@Styles.Render("~/bundles/jqueryUiCss")
+<script type="text/javascript">
+    $(document).ready(function () {
+        getClasses();
+        function getClasses() {
+            $(".dirContent").empty();
+            $(".dirContent").append("<div class='classFilterBox'></div>");
+            $(".classFilterBox").append("<div class='classFilterTitle'>Управление Классами</div>");
+            $(".classFilterBox").append("<div class='classFilterLevel'>" +
+                "<a href='#' class='classFilterActive'>1</a>" +
+                "<a href='#'>2</a>" +
+                "<a href='#'>3</a>" +
+                "<a href='#'>4</a>" +
+                "<a href='#'>5</a>" +
+                "<a href='#'>6</a>" +
+                "<a href='#'>7</a>" +
+                "<a href='#'>8</a>" +
+                "<a href='#'>9</a>" +
+                "<a href='#'>10</a>" +
+                "<a href='#'>11</a>" +
+                "</div>");
+            $(".classFilterBox").append("<div class='classFilterLetter'>" +
+                "<a href='#' class='classFilterActive'>А</a>" +
+                "<a href='#'>Б</a>" +
+                "<a href='#'>В</a>" +
+                "<a href='#'>Г</a>" +
+                "<a href='#'>Д</a>" +
+                "<a href='#'>Е</a>" +
+                "<a href='#'>Ж</a>" +                
+                "</div>");
+            var level = $(".classFilterLevel a.classFilterActive").html();
+            var letter = $(".classFilterLetter a.classFilterActive").html();
+            getClassesAjax(level, letter);
+            $(".classFilterLevel a").click(function () {
+                $(".classFilterLevel a").removeClass("classFilterActive");
+                $(this).addClass("classFilterActive");
+                var level = $(".classFilterLevel a.classFilterActive").html();
+                var letter = $(".classFilterLetter a.classFilterActive").html();
+                getClassesAjax(level, letter);
+            });
+            $(".classFilterLetter a").click(function () {
+                $(".classFilterLetter a").removeClass("classFilterActive");
+                $(this).addClass("classFilterActive");
+                var level = $(".classFilterLevel a.classFilterActive").html();
+                var letter = $(".classFilterLetter a.classFilterActive").html();
+                getClassesAjax(level, letter);
+            });           
+        };
+
+        function getClassesAjax(x, y) {
+            $(".classContainer").remove();
+            $(".dirContent").append("<div class='classContainer'></div>");
+            $(".classContainer").append("<div class='tableDirClass'><h2><div><b>" + x + " " + y + "</b></div></h2><div>");
+            $(".tableDirClass").append("<table id='forDirectorTable'><tr><th>№</th><th>Фамилия</th><th>Имя</th><th>Родитель</th><th>Тел.</th><th>ID</th><th>Управление</th></tr></table>" +
+              "<div id='endAdminTable'></div>");
+            $.ajax({
+                url: '@Url.Action("getClass", "ForDirector")',
+                method: 'post',
+                data: JSON.stringify({
+                    "level": x,
+                    "letter": y
+                }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(".tableDirClass h2").append("<div> Коль-во учащихся: " + data.count + "</div> <a href='#'><img class='tableDirTimetableEditButtion' src='/image/icons/timeTableEdit.png' alt='Расписание' />" +
+                        "<div class='tableDirTimetableEditButtionDesc'>Изменить Расписание</div>" +
+                        "<img class='tableDirHeadTeacherEditButtion'src='/image/icons/headTeacher.png' alt='КлассРук' />"+
+                     "<div class='tableDirHeadTeacherEditButtionDesc'>Изменить Классного Руководителя</div></a>");
+                    $(".tableDirTimetableEditButtion").mouseenter(function () {
+                        $(this).addClass("hover");
+                        $(".tableDirTimetableEditButtionDesc").stop().fadeIn('slow');
+                    });
+                    $(".tableDirTimetableEditButtion").mouseleave(function () {
+                        $(this).removeClass("hover");
+                        $(".tableDirTimetableEditButtionDesc").stop().fadeOut('slow');
+                    });
+                    $(".tableDirHeadTeacherEditButtion").mouseenter(function () {
+                        $(this).addClass("hover");
+                        $(".tableDirHeadTeacherEditButtionDesc").stop().fadeIn('slow');
+                    });
+                    $(".tableDirHeadTeacherEditButtion").mouseleave(function () {
+                        $(this).removeClass("hover");
+                        $(".tableDirHeadTeacherEditButtionDesc").stop().fadeOut('slow');
+                    });
+                    $i = 0;
+                    $(data.managers).each(function (index, item) {
+                        $i++;
+                        $(".tableDirClass table").append("<tr><td>" + $i + "</td><td class='lastNameTd'>" + item.LastName + "</td><td class='firstNameTd'>" +
+                            item.FirstName + "</td>" +
+                            "<td class='phoneTd'>" + item.Parent + "</td>" +
+                            "<td class='emailTd'>" + item.Phone + "</td>" +
+                            "<td class='idTd'>" + item.Id + "</td>" +
+                            "<td><a href='#' class='managerDetails'><img src='/image/icons/details.png' alt='Детали' /></a>" +
+                            "<a href='#' class='managerEdit'><img src='/image/icons/edit.png' alt='Редактировать' /></a>" +                            
+                            "</td></tr>");
+                    });
+                },
+
+                error: function () {
+                    alert('ee');
+                }
+            });
+        };
+
+        $("#grpd").click(function () {
+            getClasses();
+        });
+
+    });
+
+    </script>
+
+<div id="topLineLogin">
+    <div class="adminSchoolName">
+        <img src="~/image/icons/lenta/lenta.png" />
+        <p>Школа №000</p>
+    </div>
+    <div class="userButtonPack">
+        @*<a href="#"><div class="userBtnDescription" id="">Управление<br /> Предметами</div><img id="sbjd" src="~/image/icons/textbooks.png" alt="Управление Предметами" /></a>
+        <a href="#"><div id="">Управление<br /> Учениками</div><img id="ppld" src="~/image/icons/pupil.png" alt="Управление Учениками" /></a>
+        <a href="#"><div id="">Управление<br /> Родителями</div><img id="prtd" src="~/image/icons/parent_icon.png" alt="Управление Родителями" /></a>
+        <a href="#"><div id="">Управление<br /> Учителями</div><img id="tcrd" src="~/image/icons/teacher.png" alt="Управление учителями школы" /></a>
+        <a href="#"><div id="">Управление<br /> Менеджером</div><img id="mnrd" src="~/image/icons/Manager-512.png" alt="Управление менеджером школы" /></a>*@
+        <a href="@Url.Action("TimeTableManagement")"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="tmtbl" src="~/image/icons/timeTableEdit.png" alt="Управление Группами" /></a>
+        <a href="#"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="grpd" src="~/image/icons/group.png" alt="Управление Группами" /></a>
+        
+    </div>
+</div>
+
+<div class="dirContent">
+
+</div>

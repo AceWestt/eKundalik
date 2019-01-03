@@ -1,0 +1,148 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery3")
+@Styles.Render("~/bundles/jqueryUiCss")
+
+<script type="text/javascript">
+    function getDiaries(){
+        var SID = $(".parentControlPack div.active span.id").html();
+        var ddtae = $("input[type=date]").val();
+        $.ajax({
+            url: '@Url.Action("getDiaries", "ForParent")',
+            method: 'post',
+            data: JSON.stringify({
+                "id": SID,
+                "ddate" : ddtae 
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $("#adminContent").empty();
+                $("#adminContent").append("<div class='tableHead'><h2>Дневник Учащегося</h2></div>");
+
+                $("#adminContent").append($("<div id='manTable' class='forTeacher'><table><tr><th>№</th><th class='idTd'>ID</th><th>Предмет</th><th>Домашнее Задание</th><th>Комментарий</th><th>Оценка</th></tr></table>" +
+                   "<div id='endAdminTable'></div></div>"));
+                $i = 0;
+                $(data).each(function (index, item) {
+                    $i++;
+                    $("#adminContent table").append($("<tr><td>" + $i + "</td>"+
+                        "<td class='idTd'>" + item.DiaryId + "</td>" +  
+                        "<td class='subjectTd'>" + item.Subject + "</td>"+ 
+                        "<td class='homeTaskTd'>" + item.Homework + "</td>" +
+                        "<td class='detailsTd'>" + item.Details +"</td>" + 
+                        "<td class='markTd'>" + item.Mark +"</td></tr>"));
+                });
+                $("#adminContent table tr").each(function(){
+                    if($(this).children().first().html() != "№"){
+                        var ID = $(this).children().first().next().next().html(); 
+                        var subject = $(this).children().first().next().next(); 
+                        $.ajax({
+                            url: '@Url.Action("getSubjectName", "ForParent")',
+                            method: 'post',
+                            data: JSON.stringify({
+                                "id": ID,
+                                        
+                            }),
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                subject.empty();
+                                subject.html(data.SubjectName);
+                            }
+                        });
+                    };
+                });
+            }
+        });
+    };
+    $(document).ready(function () {
+        var ID = @ViewBag.Id;
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1;
+        if (dd < 10) { dd = '0' + dd };
+        if (mm < 10) { mm = "0" + mm };
+        var yyyy = today.getFullYear();
+        today = yyyy + "-" + mm + "-" + dd;
+        $("input[type=date]").val(today);
+        
+        $.ajax({
+            url: '@Url.Action("getMyChildren", "ForParent")',
+            method: 'post',
+            data: JSON.stringify({
+                "id": ID                
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $(".parentControlPack").empty();
+                $(data).each(function(index, i){
+                    $(".parentControlPack").append("<div><span class='id'>"+i.Id+
+                        "</span>"+i.LastName + " " + i.FirstName + " <span class='classId'>"+
+                        i.Class + "</span></div>");
+                });
+                $(".parentControlPack").children().first().addClass("active");
+                $(".parentControlPack div").each(function(){
+                    var classID = $(this).find("span.classId").html();
+                    var block = $(this);                   
+                    $.ajax({
+                        url: '@Url.Action("getClassName", "ForParent")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "id": classID                
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            block.children("span.classId").empty();
+                            block.children("span.classId").append(data.Level+data.Name);
+                        }
+                    });
+               
+                });
+
+                $(".parentControlPack div").click(function(){
+                    $(".parentControlPack div").removeClass("active");
+                    $(this).addClass("active");
+                    getDiaries();
+                });
+
+                $("input[type=date]").change(function(){                    
+                    getDiaries();
+                });
+
+                
+                
+            }
+        });
+    });
+</script>
+
+
+<div id="topLineLogin">
+    <div class="adminSchoolName">
+        <img src="~/image/icons/lenta/lenta.png" />
+        <p>Школа №000</p>
+    </div>
+    <div class="userButtonPack">
+        @*<a href="#"><div class="userBtnDescription" id="">Управление<br /> Предметами</div><img id="sbjd" src="~/image/icons/textbooks.png" alt="Управление Предметами" /></a>
+            <a href="#"><div id="">Управление<br /> Учениками</div><img id="ppld" src="~/image/icons/pupil.png" alt="Управление Учениками" /></a>
+            <a href="#"><div id="">Управление<br /> Родителями</div><img id="prtd" src="~/image/icons/parent_icon.png" alt="Управление Родителями" /></a>
+            <a href="#"><div id="">Управление<br /> Учителями</div><img id="tcrd" src="~/image/icons/teacher.png" alt="Управление учителями школы" /></a>
+            <a href="#"><div id="">Управление<br /> Менеджером</div><img id="mnrd" src="~/image/icons/Manager-512.png" alt="Управление менеджером школы" /></a>*@
+        <a href="#"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="tmtbl" src="~/image/icons/timeTableEdit.png" alt="Управление Группами" /></a>
+        <a href="@Url.Action("Index")"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="grpd" src="~/image/icons/group.png" alt="Управление Группами" /></a>
+    </div>
+</div>
+<div class="parentControlPack">
+
+</div>
+<input type="date" name="ddate" value=""/>
+<div id="adminContent">
+
+</div>
+
+

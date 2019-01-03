@@ -1,0 +1,282 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery3")
+@Styles.Render("~/bundles/jqueryUiCss")
+<script type="text/javascript">
+    function SaveAll(){
+        $("#endAdminTable").empty();
+        $("#endAdminTable").append("<div class='save'>Сохранить</div><div class='cancel'>Отменить</div>");   
+        $(".save").click(function(){
+            var row = $("#adminContent table tr");
+            row.each(function(index, item){
+                if($(this).children().first().html() !="№"){
+                    var TID = @ViewBag.Id;
+                    var dDate = $(".teacherControllPack").find("input[type=date]").val();
+                    var subject = $("select[name=subjects]").find("option:selected").val();
+                    var SID = $(this).find(".idTd").html();
+                    var hTS = $(this).children(".homeTaskTd").html();
+                    var dTS= $(this).find(".detailsTd").html();
+                    var mark =  $(this).children(".markTd").html();
+                    if($(this).find("input[name=homeTask]").length > 0){hTS = $(this).find("input[name=homeTask]").val(); };                    
+                    if($(this).find("input[name=details]").length > 0){details = $(this).find("input[name=details]").val(); };                    
+                    alert(hTS);
+                    $.ajax({
+                        url: '@Url.Action("addDiary", "Teacher")',
+                        method: 'post',
+                        data: JSON.stringify({
+                            "tId": TID,
+                            "dDate" : dDate,
+                            "sId" : SID,
+                            "hTS" : hTS,
+                            "dTS" : dTS,
+                            "mark" : mark,
+                            "subject" : subject
+                        }),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if(data == "success"){
+                                alert("Занятие Добавлено! Проверьте Журнал!");
+                                diaryManageMent();
+                            }
+                            else{
+                                alert("Идентичное Занятие Существует! Проверьте Журнал!");
+                            }
+                        
+                        }
+                    });
+                                                
+                };
+            });
+        });
+
+        $(".cancel").click(function(){
+            diaryManageMent();
+        });
+    };
+    function diaryManageMent(){
+        $("#adminContent").empty();
+        var ID = @ViewBag.Id;        
+        var Subjects = $("select[name=subjects]");
+        var Classes = $("select[name=classes]");
+        $.ajax({
+            url: '@Url.Action("getMySubjects", "Teacher")',
+            method: 'post',
+            data: JSON.stringify({
+                "id": ID             
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                Subjects.empty();
+                $(data).each(function (index, item) {
+                    Subjects.append($('<option/>', { value: item.Id, text: item.Level + item.SubjectName }));
+                });
+                var d = Subjects.find("option:selected").text();
+                var l = d.substring(0, 1);
+                diaryManagementAjax(l);
+                Subjects.change(function(){
+                    var d = Subjects.find("option:selected").text();
+                    var l = d.substring(0, 1);
+                    diaryManagementAjax(l);
+                });
+                
+            }
+        });
+    };
+    function diaryManagementAjaxFurther(x){
+        $.ajax({
+            url: '@Url.Action("getMyStudents", "Teacher")',
+            method: 'post',
+            data: JSON.stringify({
+                "classId": x            
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $("#adminContent").empty();
+                $("#adminContent").append("<div class='tableHead'><h2>Управление Дневником Класса</h2><a href='#'><div class='addButton'>+</div></a></div>");
+
+                $("#adminContent").append($("<div id='manTable' class='forTeacher'><table><tr><th>№</th><th class='idTd'>ID</th><th>Ученик</th><th>Домашнее Задание</th><th>Комментарий</th><th>Оценка</th></tr></table>" +
+                   "<div id='endAdminTable'></div></div>"));
+                $i = 0;
+                $(data).each(function (index, item) {
+                    $i++;
+                    $("#adminContent table").append($("<tr><td>" + $i + "</td>"+
+                        "<td class='idTd'>" + item.Id + "</td>" +  
+                        "<td class='fullNameTd'>" + item.LastName + " " + item.FirstName + "</td>"+ 
+                        "<td class='homeTaskTd'>" + " " + "</td>" +
+                        "<td class='detailsTd'>" + " " +"</td>" + 
+                        "<td class='markTd'>" + " " +"</td></tr>"));
+                });
+                $(".addButton").click(function(){
+                    $(this).after("<input type='text' name='hT4E' value='Домашнее Задание'/><input type='button' name='hT4EButton' value='Задать'/>");
+                    $("input[name=hT4EButton]").click(function(){
+                        var hT4E = $("input[name=hT4E]").val();                                            
+                        var row = $("#adminContent table tr");
+                        row.each(function(index, item){
+                            if($(this).children().first().html !="№"){
+                                $(this).find(".homeTaskTd").html(hT4E);                                                    
+                            };
+                        });
+                        SaveAll();
+                    });
+                });
+
+                var row = $("#adminContent table tr");
+                if(row.children().first().html !="№"){
+                    row.find(".homeTaskTd").click(function(){
+                        if( $(this).find("input").length <= 0){
+                            $(this).empty();
+                            $(this).append("<input type='text' name='homeTask' value=' '/>");
+                            SaveAll();
+                        };                                             
+                    });
+                    row.find(".detailsTd").click(function(){
+                        if( $(this).find("input").length <= 0){
+                            $(this).empty();
+                            $(this).append("<input type='text' name='details' value=' '/>");
+                            SaveAll();
+                        };                                             
+                    });
+                    row.find(".markTd").click(function(){
+                        if( $(this).html() == '-' ){
+                            $(this).empty();
+                            $(this).append("2");
+                        }
+                        else if($(this).html() == '2'){
+                            $(this).empty();
+                            $(this).append("2.5");
+                        }
+                        else if($(this).html() == '2.5'){
+                            $(this).empty();
+                            $(this).append("3");
+                        }
+                        else if($(this).html() == '3'){
+                            $(this).empty();
+                            $(this).append("3.5");
+                        }
+                        else if($(this).html() == '3.5'){
+                            $(this).empty();
+                            $(this).append("4");
+                        }
+                        else if($(this).html() == '4'){
+                            $(this).empty();
+                            $(this).append("4.5");
+                        }
+                        else if($(this).html() == '4.5'){
+                            $(this).empty();
+                            $(this).append("5");
+                        }
+                        else if($(this).html() == '5'){
+                            $(this).empty();
+                            $(this).append("-");
+                        }
+                        else{
+                            $(this).empty();
+                            $(this).append("-");
+                        };
+                        SaveAll();
+                    });
+
+                                        
+                };
+
+                                    
+                                    
+
+                $(".addButton").mouseenter(function () {
+                    $(".addButton").stop().animate({ "width": "300px" }, function () {
+                        $(".addButton").empty();
+                        $(".addButton").append("ДЗ Для Всего Класса");
+                    });
+
+                });
+                $(".addButton").mouseleave(function () {
+                    $(".addButton").empty();
+                    $(".addButton").append("+");
+                    $(".addButton").stop().animate({ "width": "50px" });
+
+                });
+                                                                    
+            }
+        });
+    };
+    function diaryManagementAjax(x){
+        var Classes = $("select[name=classes]");
+        var Subjects = $("select[name=subjects]");
+        $.ajax({
+            url: '@Url.Action("getMyClasses", "Teacher")',
+            method: 'post',
+            data: JSON.stringify({
+                "level": x             
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                Classes.empty();
+                $(data).each(function (index, item) {
+                    Classes.append($('<option/>', { value: item.Id, text: item.Level + item.Name }));
+                });
+                var cId = Classes.find("option:selected").val();
+                        
+                var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth() + 1;
+                if (dd < 10) { dd = '0' + dd };
+                if (mm < 10) { mm = "0" + mm };
+                var yyyy = today.getFullYear();
+                today = yyyy + "-" + mm + "-" + dd;
+                $(".teacherControllPack").find("input[type=date]").val(today);
+                $(".teacherControllPack").find("input[type=button]").click(function(){
+                    var SID = Subjects.find("option:selected").val();
+                    var CID = Classes.find("option:selected").val();
+                    var date = $(".teacherControllPack").find("input[type=date]").val();
+                    diaryManagementAjaxFurther(CID);
+                    Classes.change(function(){
+                        var CID = Classes.find("option:selected").val();
+                        var date = $(".teacherControllPack").find("input[type=date]").val();
+                        diaryManagementAjaxFurther(CID);
+                    });                   
+                });
+            }
+        });
+    }
+    $(document).ready(function () {
+        diaryManageMent();
+    });
+</script>
+<div id="topLineLogin">
+    <div class="adminSchoolName">
+        <img src="~/image/icons/lenta/lenta.png" />
+        <p>Школа №000</p>
+    </div>
+    <div class="userButtonPack">
+        @*<a href="#"><div class="userBtnDescription" id="">Управление<br /> Предметами</div><img id="sbjd" src="~/image/icons/textbooks.png" alt="Управление Предметами" /></a>
+            <a href="#"><div id="">Управление<br /> Учениками</div><img id="ppld" src="~/image/icons/pupil.png" alt="Управление Учениками" /></a>
+            <a href="#"><div id="">Управление<br /> Родителями</div><img id="prtd" src="~/image/icons/parent_icon.png" alt="Управление Родителями" /></a>
+            <a href="#"><div id="">Управление<br /> Учителями</div><img id="tcrd" src="~/image/icons/teacher.png" alt="Управление учителями школы" /></a>
+            <a href="#"><div id="">Управление<br /> Менеджером</div><img id="mnrd" src="~/image/icons/Manager-512.png" alt="Управление менеджером школы" /></a>*@
+        <a href="#"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="tmtbl" src="~/image/icons/timeTableEdit.png" alt="Управление Группами" /></a>
+        <a href="@Url.Action("Index")"><div class="userBtnDescription" id="">Управление<br /> Группами</div><img id="grpd" src="~/image/icons/group.png" alt="Управление Группами" /></a>
+    </div>
+    </div>
+    <div class="teacherControllPack">
+        <div>
+            Выберите ваш предмет <select name="subjects"></select>
+        </div>  
+        <div>
+            Выберите ваш класс <select name="classes"></select>
+        </div>
+        <div>
+            Выберите дату <input name="date" type="date" value=""/>
+            <input type="button" name="add" value="Добавить Занятие" />
+        </div>
+</div>
+<div id="adminContent">
+
+</div>
+

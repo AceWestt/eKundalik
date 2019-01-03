@@ -1,0 +1,96 @@
+﻿@model eDnevnik.Parent
+
+@{
+    ViewBag.Title = "EditFirstTime";
+}
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery3")
+@Scripts.Render("~/bundles/jqueryUi")
+@Styles.Render("~/bundles/jqueryUiCss")
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+        $(".directorInputField.pass").val("");
+        $(".directorInputField.passConfirm").val("");
+    });
+</script>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="formFirstEdit">
+        <h1>Пожалуйста Заполните Анкету</h1>
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+
+        @Html.Label("Пароль*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.Editor("pass", new { htmlAttributes = new { @class = "directorInputField pass" } })
+        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+
+        @Html.Label("Подтвердите Пароль*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.Editor("passConf", new { htmlAttributes = new { @class = "directorInputField passConfirm" } })
+        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+
+
+
+        @Html.Label("Фамилия*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "directorInputField" } })
+        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+
+
+
+        @Html.Label("Имя*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "directorInputField" } })
+        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+
+
+
+        @Html.Label("Дата Рождения", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.EditorFor(model => model.DoB, new { htmlAttributes = new { @class = "directorInputField datepicker" } })
+        @Html.ValidationMessageFor(model => model.DoB, "", new { @class = "text-danger" })
+
+
+
+        @Html.Label("Адрес*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "directorInputField" } })
+        @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+
+
+        @Html.Label("Тел*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "directorInputField" } })
+        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+
+
+
+        @Html.Label("email*", htmlAttributes: new { @class = "directorInputLabel" })
+
+        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "directorInputField" } })
+        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+
+
+
+        @Html.Label("Загрузите Фото:", htmlAttributes: new { @class = "directorInputLabel" })
+
+        <input type="file" name="ImageFile" id="teacherPhoto" />
+
+
+
+
+
+
+        <input type="submit" value="Сохранить" class="directorInputField" />
+
+    </div>
+
+}
+
